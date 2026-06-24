@@ -5,6 +5,7 @@ import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ConsistencyBanner } from '@/components/streak-banner';
+import { HealthStats } from '@/components/health-stats';
 import { PrimaryButton } from '@/components/primary-button';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -71,6 +72,8 @@ export default function TodayScreen() {
           </ThemedText>
 
           <ConsistencyBanner streak={streak} completedToday={completedToday} />
+
+          <HealthStats />
 
           <WorkoutCard plan={plan} />
 

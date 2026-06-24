@@ -10,11 +10,7 @@
     "ios": {
       "icon": "./assets/expo.icon",
       "bundleIdentifier": "com.fitdaily.app",
-      "supportsTablet": true,
-      "infoPlist": {
-        "NSHealthShareUsageDescription": "FitDaily reads your step count and active energy to personalize your daily workout and track progress.",
-        "NSHealthUpdateUsageDescription": "FitDaily can record completed workouts to Apple Health."
-      }
+      "supportsTablet": true
     },
     "android": {
       "package": "com.fitdaily.app",
@@ -42,7 +38,15 @@
           }
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "@kingstinct/react-native-healthkit",
+        {
+          "background": false,
+          "NSHealthShareUsageDescription": "FitDaily reads your step count and active energy to personalize your daily workout and track progress.",
+          "NSHealthUpdateUsageDescription": "FitDaily can record completed workouts to Apple Health."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

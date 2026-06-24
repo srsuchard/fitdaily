@@ -16,8 +16,24 @@ npx expo start         # press i for iOS simulator, or scan QR in Expo Go
 
 **Demo mode:** with no `.env` values the app boots with a local mock identity,
 mock workout generation, and a "simulate premium" toggle (Profile tab) so the full
-UI is explorable without any backend. Native in-app purchases (RevenueCat) require a
-development build, not Expo Go.
+UI is explorable without any backend.
+
+## Development build (HealthKit + RevenueCat)
+
+Apple HealthKit and RevenueCat are **native modules** — they don't run in Expo Go.
+The code degrades gracefully (HealthKit stats simply don't appear; purchases are
+simulated), but to exercise them for real you need a development build:
+
+```bash
+# Local simulator/device build:
+npx expo run:ios
+
+# Or via EAS (uses the "development" profile in eas.json):
+eas build --profile development --platform ios
+```
+
+HealthKit also requires the **HealthKit capability** on your App ID in the Apple
+Developer portal; the config plugin adds the entitlement + usage strings at build time.
 
 ## Architecture
 
@@ -38,6 +54,7 @@ src/
     revenuecat.ts           subscriptions, guarded for Expo Go
     workoutEngine.ts        prompt builder, remote call, local mock + free templates
     progressStore.ts        local-first completion + streak math
+    health.ts               Apple HealthKit reads (steps, active energy), guarded
     env.ts                  EXPO_PUBLIC_* access
   providers/
     AuthProvider.tsx        session + entitlement + onboarding state
