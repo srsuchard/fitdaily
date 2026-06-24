@@ -1,56 +1,83 @@
-# Welcome to your Expo app 👋
+# FitDaily
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+One personalized workout a day for the everyday person. React Native + Expo (SDK 56),
+Supabase backend, RevenueCat subscriptions, and an LLM-powered adaptive workout engine.
 
-## Get started
+> **App name `FitDaily` is a placeholder** — change it in `app.json` (`name`, `slug`,
+> `scheme`, `ios.bundleIdentifier`, `android.package`) and `package.json`.
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Quick start
 
 ```bash
-npm run reset-project
+npm install
+cp .env.example .env   # optional — app runs in demo mode with no values
+npx expo start         # press i for iOS simulator, or scan QR in Expo Go
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+**Demo mode:** with no `.env` values the app boots with a local mock identity,
+mock workout generation, and a "simulate premium" toggle (Profile tab) so the full
+UI is explorable without any backend. Native in-app purchases (RevenueCat) require a
+development build, not Expo Go.
 
-### Other setup steps
+## Architecture
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+```
+src/
+  app/                      expo-router routes (file-based)
+    _layout.tsx             providers + auth-gate redirects
+    sign-in.tsx             email/password (or demo entry)
+    onboarding.tsx          3-step questionnaire (goal / time / equipment)
+    paywall.tsx             subscription tiers (RevenueCat or fallback)
+    (tabs)/
+      _layout.tsx           native tab bar
+      index.tsx             Today — the hero adaptive-workout screen
+      progress.tsx          streak + consistency charts (30-day chart = premium)
+      profile.tsx           account, subscription, restore, sign out
+  lib/
+    supabase.ts             auth + DB client (null in demo mode)
+    revenuecat.ts           subscriptions, guarded for Expo Go
+    workoutEngine.ts        prompt builder, remote call, local mock + free templates
+    progressStore.ts        local-first completion + streak math
+    env.ts                  EXPO_PUBLIC_* access
+  providers/
+    AuthProvider.tsx        session + entitlement + onboarding state
+    ProgressProvider.tsx    completions / streak state
+  components/               PrimaryButton, WorkoutCard, charts, streak banner, themed-*
+  types/                    domain types
 
-## Learn more
+supabase/
+  migrations/
+    0001_init_rls.sql       profiles + entitlement + RLS trust model (pre-existing)
+    0002_fitness_domain.sql daily_workouts + workout_completions + streak RPC
+  functions/
+    generate-workout/       Edge Function: holds the OpenAI key, returns a WorkoutPlan
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+## Free vs Premium
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+| Feature                        | Free | Premium |
+| ------------------------------ | :--: | :-----: |
+| 3 starter workout templates    |  ✓   |    ✓    |
+| Daily AI-generated workout     |      |    ✓    |
+| Workout history / 7-day view   |  ✓   |    ✓    |
+| 30-day consistency trend chart |      |    ✓    |
 
-## Join the community
+Premium is enforced **server-side**: the Edge Function rejects non-premium callers,
+and a DB trigger blocks storing AI workouts without the `premium_access` entitlement.
+The client paywall is just UX.
 
-Join our community of developers creating universal apps.
+## Backend setup (when ready)
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+1. Create a Supabase project; run `supabase db push` to apply both migrations.
+2. `supabase functions deploy generate-workout` and
+   `supabase secrets set OPENAI_API_KEY=sk-...`
+3. In RevenueCat: create the `premium_access` entitlement + monthly/annual products,
+   and wire the webhook to update `profiles.entitlement` via the service_role key.
+4. Fill `.env` with the Supabase URL/anon key, RevenueCat public keys, and the
+   deployed function URL.
+
+## Key safety
+
+The OpenAI key and Supabase `service_role` key are **never** in the app bundle — only
+`EXPO_PUBLIC_*` values ship to the client. The LLM is called exclusively from the
+Edge Function.

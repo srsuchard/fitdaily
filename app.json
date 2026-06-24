@@ -1,16 +1,23 @@
 {
   "expo": {
-    "name": "fitscaffold",
-    "slug": "fitscaffold",
+    "name": "FitDaily",
+    "slug": "fitdaily",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "fitscaffold",
+    "scheme": "fitdaily",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.fitdaily.app",
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSHealthShareUsageDescription": "FitDaily reads your step count and active energy to personalize your daily workout and track progress.",
+        "NSHealthUpdateUsageDescription": "FitDaily can record completed workouts to Apple Health."
+      }
     },
     "android": {
+      "package": "com.fitdaily.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -34,7 +41,8 @@
             "imageWidth": 76
           }
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
