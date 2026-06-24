@@ -1,5 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 
+import { fetchRemoteCompletions, saveRemoteCompletion } from '@/lib/completions';
 import {
   addCompletion,
   currentStreak,
@@ -8,6 +9,7 @@ import {
   lastNDays,
   todayISO,
 } from '@/lib/progressStore';
+import { useAuth } from '@/providers/AuthProvider';
 import type { WorkoutCompletion } from '@/types';
 
 interface ProgressContextValue {
@@ -23,16 +25,41 @@ interface ProgressContextValue {
 const ProgressContext = createContext<ProgressContextValue | null>(null);
 
 export function ProgressProvider({ children }: { children: ReactNode }) {
+  const { session, demoMode } = useAuth();
+  const userId = session?.user.id ?? null;
+  // Use Supabase only for a real signed-in user; demo mode stays local.
+  const remote = !demoMode && userId !== null;
+
   const [completions, setCompletions] = useState<WorkoutCompletion[]>([]);
 
   useEffect(() => {
-    getCompletions().then(setCompletions);
-  }, []);
+    let active = true;
+    (async () => {
+      try {
+        const data = remote ? await fetchRemoteCompletions() : await getCompletions();
+        if (active) setCompletions(data);
+      } catch {
+        // Network/RLS hiccup — fall back to whatever is stored locally.
+        if (active) setCompletions(await getCompletions());
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [remote, userId]);
 
-  const recordCompletion = useCallback(async (planTitle: string, durationMinutes: number) => {
-    const next = await addCompletion({ date: todayISO(), planTitle, durationMinutes });
-    setCompletions(next);
-  }, []);
+  const recordCompletion = useCallback(
+    async (planTitle: string, durationMinutes: number) => {
+      const entry: WorkoutCompletion = { date: todayISO(), planTitle, durationMinutes };
+      if (remote && userId) {
+        await saveRemoteCompletion(userId, entry);
+        setCompletions(await fetchRemoteCompletions());
+      } else {
+        setCompletions(await addCompletion(entry));
+      }
+    },
+    [remote, userId],
+  );
 
   const value = useMemo<ProgressContextValue>(
     () => ({
