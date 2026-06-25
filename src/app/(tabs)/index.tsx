@@ -27,7 +27,7 @@ function greeting(): string {
 export default function TodayScreen() {
   const router = useRouter();
   const { onboarding, isPremium, accessToken } = useAuth();
-  const { completedToday, streak } = useProgress();
+  const { completedToday, streak, streakProtected } = useProgress();
   const { setActivePlan } = useWorkoutSession();
 
   const [plan, setPlan] = useState<WorkoutPlan>(FREE_TEMPLATES[0]);
@@ -77,7 +77,11 @@ export default function TodayScreen() {
             Today’s workout
           </ThemedText>
 
-          <ConsistencyBanner streak={streak} completedToday={completedToday} />
+          <ConsistencyBanner
+            streak={streak}
+            completedToday={completedToday}
+            protectedActive={streakProtected}
+          />
 
           <HealthStats />
 

@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -9,6 +9,12 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
 import { GOAL_LABELS } from '@/types';
+import {
+  disableDailyReminder,
+  enableDailyReminder,
+  isReminderEnabled,
+  remindersSupported,
+} from '@/lib/reminders';
 import { isPurchasesReady, restorePurchases } from '@/lib/revenuecat';
 import { useAuth } from '@/providers/AuthProvider';
 
@@ -25,6 +31,30 @@ export default function ProfileScreen() {
   const router = useRouter();
   const { userEmail, isPremium, entitlement, onboarding, demoMode, signOut, setEntitlement } = useAuth();
   const [restoring, setRestoring] = useState(false);
+  const [reminderOn, setReminderOn] = useState(false);
+
+  useEffect(() => {
+    isReminderEnabled().then(setReminderOn);
+  }, []);
+
+  const toggleReminder = async (next: boolean) => {
+    if (next) {
+      const ok = await enableDailyReminder();
+      if (!ok) {
+        Alert.alert(
+          'Reminders unavailable',
+          remindersSupported
+            ? 'Notification permission was denied.'
+            : 'Daily reminders work on the mobile app, not on web.',
+        );
+        return;
+      }
+      setReminderOn(true);
+    } else {
+      await disableDailyReminder();
+      setReminderOn(false);
+    }
+  };
 
   const onRestore = async () => {
     if (!isPurchasesReady()) {
@@ -55,6 +85,20 @@ export default function ProfileScreen() {
           {!isPremium && (
             <PrimaryButton title="Upgrade to Premium" onPress={() => router.push('/paywall')} />
           )}
+
+          <ThemedView type="backgroundElement" style={styles.devCard}>
+            <View style={styles.devRow}>
+              <View style={{ flex: 1 }}>
+                <ThemedText type="smallBold">Daily reminder</ThemedText>
+                <ThemedText type="small" themeColor="textSecondary">
+                  {remindersSupported
+                    ? 'A 6pm nudge so you don’t break your streak.'
+                    : 'Works on the mobile app (not on web).'}
+                </ThemedText>
+              </View>
+              <Switch value={reminderOn} onValueChange={toggleReminder} disabled={!remindersSupported} />
+            </View>
+          </ThemedView>
 
           <PrimaryButton
             variant="secondary"

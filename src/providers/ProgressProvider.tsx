@@ -6,15 +6,21 @@ import {
   currentStreak,
   getCompletions,
   isCompletedOn,
+  isStreakProtected,
   lastNDays,
   todayISO,
 } from '@/lib/progressStore';
 import { useAuth } from '@/providers/AuthProvider';
 import type { WorkoutCompletion } from '@/types';
 
+/** Premium streak protection: number of missed days a streak can survive. */
+const PREMIUM_FREEZES = 1;
+
 interface ProgressContextValue {
   completions: WorkoutCompletion[];
   streak: number;
+  /** True when a freeze is currently keeping the streak alive across a gap. */
+  streakProtected: boolean;
   completedToday: boolean;
   last7: { date: string; done: boolean }[];
   last30: { date: string; done: boolean }[];
@@ -25,8 +31,9 @@ interface ProgressContextValue {
 const ProgressContext = createContext<ProgressContextValue | null>(null);
 
 export function ProgressProvider({ children }: { children: ReactNode }) {
-  const { session, demoMode } = useAuth();
+  const { session, demoMode, isPremium } = useAuth();
   const userId = session?.user.id ?? null;
+  const freezes = isPremium ? PREMIUM_FREEZES : 0;
   // Use Supabase only for a real signed-in user; demo mode stays local.
   const remote = !demoMode && userId !== null;
 
@@ -64,14 +71,15 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const value = useMemo<ProgressContextValue>(
     () => ({
       completions,
-      streak: currentStreak(completions),
+      streak: currentStreak(completions, freezes),
+      streakProtected: isStreakProtected(completions, freezes),
       completedToday: isCompletedOn(completions),
       last7: lastNDays(completions, 7),
       last30: lastNDays(completions, 30),
       totalWorkouts: completions.length,
       recordCompletion,
     }),
-    [completions, recordCompletion],
+    [completions, freezes, recordCompletion],
   );
 
   return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>;

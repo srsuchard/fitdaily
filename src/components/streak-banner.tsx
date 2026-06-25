@@ -8,14 +8,17 @@ import { ThemedView } from './themed-view';
 export function ConsistencyBanner({
   streak,
   completedToday,
+  protectedActive = false,
 }: {
   streak: number;
   completedToday: boolean;
+  protectedActive?: boolean;
 }) {
   const theme = useTheme();
 
-  const message =
-    streak === 0
+  const message = protectedActive
+    ? `❄️ ${streak}-day streak protected — a freeze saved it`
+    : streak === 0
       ? 'Start your streak today 💪'
       : completedToday
         ? `🔥 ${streak}-day streak — locked in for today`

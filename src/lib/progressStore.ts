@@ -44,17 +44,45 @@ export function isCompletedOn(completions: WorkoutCompletion[], date = todayISO(
   return completions.some((c) => c.date === date);
 }
 
-/** Consecutive days ending today (or yesterday if today not yet done). */
-export function currentStreak(completions: WorkoutCompletion[], from = new Date()): number {
+/**
+ * Consecutive days ending today (or yesterday if today not yet done).
+ *
+ * `freezes` (streak protection) lets the count bridge that many missed days
+ * without resetting — premium passes 1, free passes 0 (default unchanged).
+ */
+export function currentStreak(
+  completions: WorkoutCompletion[],
+  freezes = 0,
+  from = new Date(),
+): number {
   const done = new Set(completions.map((c) => c.date));
   let streak = 0;
+  let remaining = freezes;
   // Allow the streak to count even if today isn't done yet (started yesterday).
   let offset = done.has(todayISO(from)) ? 0 : 1;
-  while (done.has(daysAgoISO(offset, from))) {
-    streak += 1;
-    offset += 1;
+  for (;;) {
+    if (done.has(daysAgoISO(offset, from))) {
+      streak += 1;
+      offset += 1;
+    } else if (remaining > 0 && streak > 0) {
+      // Bridge a single missed day with a freeze and keep going.
+      remaining -= 1;
+      offset += 1;
+    } else {
+      break;
+    }
   }
   return streak;
+}
+
+/** Whether a freeze is currently bridging a gap (for "protected" UI). */
+export function isStreakProtected(
+  completions: WorkoutCompletion[],
+  freezes = 0,
+  from = new Date(),
+): boolean {
+  if (freezes <= 0) return false;
+  return currentStreak(completions, freezes, from) > currentStreak(completions, 0, from);
 }
 
 /** Boolean completion flags for the last `n` days, oldest → newest. */
