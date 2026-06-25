@@ -4,8 +4,9 @@ import { StyleSheet, View, useColorScheme, type ViewProps } from 'react-native';
 // A faint accent tint at the top easing into the base background. Kept subtle
 // so content/cards stay readable in both light and dark.
 const GRADIENTS = {
-  light: ['#FFF1EC', '#FDFBFA', '#FFFFFF'] as const,
-  dark: ['#1A100D', '#0B0807', '#000000'] as const,
+  light: ['#FFD9CB', '#FFEDE6', '#FFFFFF'] as const,
+  // Visibly warm ember at the top easing to black (was too near-black before).
+  dark: ['#5A2A16', '#241310', '#000000'] as const,
 };
 
 /**
