@@ -46,6 +46,12 @@ export const EQUIPMENT_LABELS: Record<Equipment, string> = {
   full_gym: 'Full gym',
 };
 
+export const EXPERIENCE_LABELS: Record<ExperienceLevel, string> = {
+  beginner: 'Beginner — new to working out',
+  intermediate: 'Intermediate — train sometimes',
+  advanced: 'Advanced — train regularly',
+};
+
 // --- Workouts --------------------------------------------------------------
 
 export interface Exercise {

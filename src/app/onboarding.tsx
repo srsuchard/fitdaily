@@ -11,13 +11,16 @@ import { useTheme } from '@/hooks/use-theme';
 import { useAuth } from '@/providers/AuthProvider';
 import {
   EQUIPMENT_LABELS,
+  EXPERIENCE_LABELS,
   GOAL_LABELS,
   type Equipment,
+  type ExperienceLevel,
   type FitnessGoal,
   type OnboardingProfile,
 } from '@/types';
 
 const TIME_OPTIONS = [15, 30, 45, 60];
+const LAST_STEP = 3;
 
 function Choice({
   label,
@@ -55,6 +58,9 @@ export default function OnboardingScreen() {
   const [goal, setGoal] = useState<FitnessGoal>(onboarding?.goal ?? 'stay_active');
   const [minutes, setMinutes] = useState<number>(onboarding?.minutesPerDay ?? 30);
   const [equipment, setEquipment] = useState<Equipment[]>(onboarding?.equipment ?? ['bodyweight']);
+  const [experience, setExperience] = useState<ExperienceLevel>(
+    onboarding?.experience ?? 'beginner',
+  );
 
   const toggleEquip = (e: Equipment) =>
     setEquipment((cur) => (cur.includes(e) ? cur.filter((x) => x !== e) : [...cur, e]));
@@ -64,7 +70,7 @@ export default function OnboardingScreen() {
       goal,
       minutesPerDay: minutes,
       equipment: equipment.length ? equipment : ['bodyweight'],
-      experience: onboarding?.experience ?? 'beginner',
+      experience,
     };
     await completeOnboarding(profile);
     router.replace('/');
@@ -75,7 +81,7 @@ export default function OnboardingScreen() {
       <SafeAreaView style={styles.safe}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <ThemedText type="small" themeColor="textSecondary">
-            Step {step + 1} of 3
+            Step {step + 1} of {LAST_STEP + 1}
           </ThemedText>
 
           {step === 0 && (
@@ -123,6 +129,25 @@ export default function OnboardingScreen() {
               </View>
             </>
           )}
+
+          {step === 3 && (
+            <>
+              <ThemedText type="subtitle">What’s your experience level?</ThemedText>
+              <ThemedText type="small" themeColor="textSecondary">
+                We’ll tune workout intensity to match.
+              </ThemedText>
+              <View style={styles.choices}>
+                {(Object.keys(EXPERIENCE_LABELS) as ExperienceLevel[]).map((x) => (
+                  <Choice
+                    key={x}
+                    label={EXPERIENCE_LABELS[x]}
+                    selected={experience === x}
+                    onPress={() => setExperience(x)}
+                  />
+                ))}
+              </View>
+            </>
+          )}
         </ScrollView>
 
         <View style={styles.footer}>
@@ -135,9 +160,9 @@ export default function OnboardingScreen() {
             />
           )}
           <PrimaryButton
-            title={step === 2 ? 'Start training' : 'Continue'}
+            title={step === LAST_STEP ? 'Start training' : 'Continue'}
             style={styles.footerBtn}
-            onPress={() => (step === 2 ? finish() : setStep((s) => s + 1))}
+            onPress={() => (step === LAST_STEP ? finish() : setStep((s) => s + 1))}
           />
         </View>
       </SafeAreaView>
