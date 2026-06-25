@@ -16,6 +16,7 @@ import {
   remindersSupported,
 } from '@/lib/reminders';
 import { isPurchasesReady, restorePurchases } from '@/lib/revenuecat';
+import { copyText, shareText } from '@/lib/share';
 import { useAuth } from '@/providers/AuthProvider';
 
 function Row({ label, value }: { label: string; value: string }) {
@@ -29,9 +30,23 @@ function Row({ label, value }: { label: string; value: string }) {
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { userEmail, isPremium, entitlement, onboarding, demoMode, signOut, setEntitlement } = useAuth();
+  const { userEmail, isPremium, entitlement, onboarding, demoMode, session, signOut, setEntitlement } =
+    useAuth();
   const [restoring, setRestoring] = useState(false);
   const [reminderOn, setReminderOn] = useState(false);
+  const [copied, setCopied] = useState(false);
+
+  // A stable, shareable referral code derived from the user id (no schema
+  // change). Full signup attribution via deep links is a future step.
+  const referralCode = (session?.user.id ?? 'demo-user').replace(/-/g, '').slice(0, 6).toUpperCase();
+  const inviteLink = `https://fitdaily.app/invite/${referralCode}`;
+  const inviteMessage = 'Join me on FitDaily — one personalized workout a day. Get a free month of Premium 💪';
+
+  const copyInvite = async () => {
+    await copyText(inviteLink);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
 
   useEffect(() => {
     isReminderEnabled().then(setReminderOn);
@@ -130,6 +145,27 @@ export default function ProfileScreen() {
             </ThemedView>
           )}
 
+          <ThemedView type="backgroundElement" style={styles.card}>
+            <ThemedText type="smallBold">Invite friends, earn Premium</ThemedText>
+            <ThemedText type="small" themeColor="textSecondary">
+              Give a friend a free month — get one too when they join.
+            </ThemedText>
+            <Row label="Your code" value={referralCode} />
+            <View style={styles.inviteActions}>
+              <PrimaryButton
+                variant="secondary"
+                title={copied ? 'Copied ✓' : 'Copy link'}
+                style={styles.flex}
+                onPress={copyInvite}
+              />
+              <PrimaryButton
+                title="Share invite"
+                style={styles.flex}
+                onPress={() => shareText(inviteMessage, inviteLink)}
+              />
+            </View>
+          </ThemedView>
+
           <PrimaryButton variant="secondary" title="Sign out" onPress={signOut} />
 
           <ThemedText type="small" themeColor="textSecondary" style={styles.foot}>
@@ -150,5 +186,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   devCard: { padding: Spacing.four, borderRadius: Spacing.four },
   devRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.three },
+  inviteActions: { flexDirection: 'row', gap: Spacing.two, marginTop: Spacing.one },
+  flex: { flex: 1 },
   foot: { textAlign: 'center', marginTop: Spacing.two },
 });

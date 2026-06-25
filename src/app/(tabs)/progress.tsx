@@ -55,6 +55,12 @@ export default function ProgressScreen() {
               <PrimaryButton title="Unlock premium" onPress={() => router.push('/paywall')} />
             </ThemedView>
           )}
+
+          <PrimaryButton
+            variant="secondary"
+            title="📣 Share my progress"
+            onPress={() => router.push('/share')}
+          />
         </ScrollView>
       </SafeAreaView>
     </ScreenBackground>

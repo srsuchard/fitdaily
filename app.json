@@ -46,7 +46,8 @@
           "NSHealthShareUsageDescription": "FitDaily reads your step count and active energy to personalize your daily workout and track progress.",
           "NSHealthUpdateUsageDescription": "FitDaily can record completed workouts to Apple Health."
         }
-      ]
+      ],
+      "expo-sharing"
     ],
     "experiments": {
       "typedRoutes": true,

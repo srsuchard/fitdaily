@@ -53,6 +53,7 @@ function RootNavigator() {
       <Stack.Screen name="onboarding" />
       <Stack.Screen name="paywall" options={{ presentation: 'modal' }} />
       <Stack.Screen name="workout" options={{ presentation: 'fullScreenModal' }} />
+      <Stack.Screen name="share" options={{ presentation: 'modal' }} />
     </Stack>
   );
 }
