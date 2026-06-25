@@ -7,8 +7,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ConsistencyBanner } from '@/components/streak-banner';
 import { HealthStats } from '@/components/health-stats';
 import { PrimaryButton } from '@/components/primary-button';
+import { ScreenBackground } from '@/components/screen-background';
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { WorkoutCard } from '@/components/workout-card';
 import { Spacing } from '@/constants/theme';
 import { FREE_TEMPLATES, generateDailyWorkout } from '@/lib/workoutEngine';
@@ -61,7 +61,7 @@ export default function TodayScreen() {
   }, [plan, recordCompletion]);
 
   return (
-    <ThemedView style={styles.container}>
+    <ScreenBackground style={styles.container}>
       <SafeAreaView style={styles.safe} edges={['top']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <ThemedText type="small" themeColor="textSecondary">
@@ -102,7 +102,7 @@ export default function TodayScreen() {
           )}
         </ScrollView>
       </SafeAreaView>
-    </ThemedView>
+    </ScreenBackground>
   );
 }
 

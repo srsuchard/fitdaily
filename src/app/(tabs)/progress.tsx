@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ConsistencyChart, WeekDots } from '@/components/consistency-chart';
 import { PrimaryButton } from '@/components/primary-button';
+import { ScreenBackground } from '@/components/screen-background';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Spacing } from '@/constants/theme';
@@ -27,7 +28,7 @@ export default function ProgressScreen() {
   const { streak, totalWorkouts, last7, last30 } = useProgress();
 
   return (
-    <ThemedView style={styles.container}>
+    <ScreenBackground style={styles.container}>
       <SafeAreaView style={styles.safe} edges={['top']}>
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <ThemedText type="title">Progress</ThemedText>
@@ -56,7 +57,7 @@ export default function ProgressScreen() {
           )}
         </ScrollView>
       </SafeAreaView>
-    </ThemedView>
+    </ScreenBackground>
   );
 }
 
