@@ -7,14 +7,36 @@
 // WorkoutPlan. When no function URL is configured we fall back to a fully
 // local, deterministic mock so the app works offline / in demo mode.
 
-import { EQUIPMENT_LABELS, GOAL_LABELS, type OnboardingProfile, type WorkoutPlan } from '@/types';
+import {
+  EQUIPMENT_LABELS,
+  GOAL_LABELS,
+  type DifficultyFeedback,
+  type OnboardingProfile,
+  type WorkoutPlan,
+} from '@/types';
 import { env } from './env';
+
+/** Extra signals that make generation adaptive day-to-day. */
+export interface GenerationContext {
+  /** How the last session felt — nudges intensity up or down. */
+  feedback?: DifficultyFeedback | null;
+}
+
+const FEEDBACK_PROMPT: Record<DifficultyFeedback, string> = {
+  too_easy: "Their last session felt TOO EASY — increase the challenge today.",
+  just_right: "Their last session felt about right — keep a similar challenge.",
+  too_hard: "Their last session felt TOO HARD — dial the intensity back today.",
+};
 
 /**
  * The exact prompt fed to the model server-side. Exported so the Edge Function
  * and any tests can share one source of truth.
  */
-export function buildWorkoutPrompt(profile: OnboardingProfile, date = new Date()): string {
+export function buildWorkoutPrompt(
+  profile: OnboardingProfile,
+  ctx: GenerationContext = {},
+  date = new Date(),
+): string {
   const equipment = profile.equipment.map((e) => EQUIPMENT_LABELS[e]).join(', ');
   const day = date.toLocaleDateString('en-US', { weekday: 'long' });
 
@@ -24,6 +46,7 @@ export function buildWorkoutPrompt(profile: OnboardingProfile, date = new Date()
     `Experience level: ${profile.experience}.`,
     `Available time: ${profile.minutesPerDay} minutes.`,
     `Available equipment: ${equipment || 'bodyweight only'}.`,
+    ctx.feedback ? FEEDBACK_PROMPT[ctx.feedback] : '',
     '',
     'Design a single, varied, safe session that fits the time budget. Include a',
     'warm-up and a cooldown. Prefer compound movements appropriate to the goal.',
@@ -48,6 +71,7 @@ export function buildWorkoutPrompt(profile: OnboardingProfile, date = new Date()
 export async function generateDailyWorkout(
   profile: OnboardingProfile,
   accessToken?: string | null,
+  ctx: GenerationContext = {},
 ): Promise<WorkoutPlan> {
   if (env.workoutFnUrl && accessToken) {
     try {
@@ -57,7 +81,7 @@ export async function generateDailyWorkout(
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
         },
-        body: JSON.stringify({ profile }),
+        body: JSON.stringify({ profile, feedback: ctx.feedback ?? null }),
       });
       if (!res.ok) throw new Error(`workout fn ${res.status}`);
       const plan = (await res.json()) as WorkoutPlan;
@@ -66,7 +90,7 @@ export async function generateDailyWorkout(
       console.warn('[workoutEngine] remote generation failed, using mock:', (e as Error).message);
     }
   }
-  return mockWorkout(profile);
+  return mockWorkout(profile, ctx);
 }
 
 // --- Local mock ------------------------------------------------------------
@@ -79,12 +103,25 @@ const MAIN_MOVES: Record<OnboardingProfile['goal'], string[]> = {
 };
 
 /** Deterministic-ish workout so demo mode produces sensible, varied output. */
-export function mockWorkout(profile: OnboardingProfile, date = new Date()): WorkoutPlan {
+export function mockWorkout(
+  profile: OnboardingProfile,
+  ctx: GenerationContext = {},
+  date = new Date(),
+): WorkoutPlan {
   const minutes = profile.minutesPerDay;
   const seed = date.getDate(); // varies day to day
   const pool = MAIN_MOVES[profile.goal];
-  const rounds = minutes >= 40 ? 4 : minutes >= 25 ? 3 : 2;
-  const repsBase = profile.experience === 'advanced' ? 15 : profile.experience === 'intermediate' ? 12 : 10;
+  let rounds = minutes >= 40 ? 4 : minutes >= 25 ? 3 : 2;
+  let repsBase =
+    profile.experience === 'advanced' ? 15 : profile.experience === 'intermediate' ? 12 : 10;
+
+  // Adapt intensity to the last session's difficulty feedback.
+  if (ctx.feedback === 'too_easy') {
+    repsBase += 3;
+  } else if (ctx.feedback === 'too_hard') {
+    repsBase = Math.max(6, repsBase - 3);
+    rounds = Math.max(2, rounds - 1);
+  }
 
   const rotate = <T>(arr: T[], by: number) => arr.map((_, i) => arr[(i + by) % arr.length]);
   const main = rotate(pool, seed).slice(0, minutes >= 30 ? 4 : 3);

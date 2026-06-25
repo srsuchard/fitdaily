@@ -1,7 +1,6 @@
-import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { Platform, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ConsistencyBanner } from '@/components/streak-banner';
@@ -11,10 +10,12 @@ import { ScreenBackground } from '@/components/screen-background';
 import { ThemedText } from '@/components/themed-text';
 import { WorkoutCard } from '@/components/workout-card';
 import { Spacing } from '@/constants/theme';
+import { getLastDifficulty } from '@/lib/feedback';
 import { FREE_TEMPLATES, generateDailyWorkout } from '@/lib/workoutEngine';
 import { useAuth } from '@/providers/AuthProvider';
 import { useProgress } from '@/providers/ProgressProvider';
-import type { WorkoutPlan } from '@/types';
+import { useWorkoutSession } from '@/providers/WorkoutSessionProvider';
+import type { DifficultyFeedback, WorkoutPlan } from '@/types';
 
 function greeting(): string {
   const h = new Date().getHours();
@@ -26,10 +27,17 @@ function greeting(): string {
 export default function TodayScreen() {
   const router = useRouter();
   const { onboarding, isPremium, accessToken } = useAuth();
-  const { completedToday, streak, recordCompletion } = useProgress();
+  const { completedToday, streak } = useProgress();
+  const { setActivePlan } = useWorkoutSession();
 
   const [plan, setPlan] = useState<WorkoutPlan>(FREE_TEMPLATES[0]);
   const [generating, setGenerating] = useState(false);
+  const [feedback, setFeedback] = useState<DifficultyFeedback | null>(null);
+
+  // Load the last difficulty rating so generation can adapt intensity.
+  useEffect(() => {
+    getLastDifficulty().then(setFeedback);
+  }, []);
 
   const generate = useCallback(async () => {
     if (!isPremium) {
@@ -39,26 +47,24 @@ export default function TodayScreen() {
     if (!onboarding) return;
     setGenerating(true);
     try {
-      const next = await generateDailyWorkout(onboarding, accessToken);
+      const next = await generateDailyWorkout(onboarding, accessToken, { feedback });
       setPlan(next);
     } finally {
       setGenerating(false);
     }
-  }, [isPremium, onboarding, accessToken, router]);
+  }, [isPremium, onboarding, accessToken, feedback, router]);
 
-  // Premium users get a fresh AI workout on open.
+  // Premium users get a fresh, feedback-adapted AI workout on open.
   useEffect(() => {
     if (isPremium && onboarding) {
-      generateDailyWorkout(onboarding, accessToken).then(setPlan).catch(() => {});
+      generateDailyWorkout(onboarding, accessToken, { feedback }).then(setPlan).catch(() => {});
     }
-  }, [isPremium, onboarding, accessToken]);
+  }, [isPremium, onboarding, accessToken, feedback]);
 
-  const complete = useCallback(async () => {
-    if (Platform.OS !== 'web') {
-      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
-    }
-    await recordCompletion(plan.title, plan.estimatedMinutes);
-  }, [plan, recordCompletion]);
+  const startWorkout = useCallback(() => {
+    setActivePlan(plan);
+    router.push('/workout');
+  }, [plan, router, setActivePlan]);
 
   return (
     <ScreenBackground style={styles.container}>
@@ -77,15 +83,18 @@ export default function TodayScreen() {
 
           <WorkoutCard plan={plan} />
 
-          {completedToday ? (
+          {completedToday && (
             <View style={styles.doneRow}>
               <ThemedText type="smallBold" themeColor="success">
                 ✓ Completed today — nice work!
               </ThemedText>
             </View>
-          ) : (
-            <PrimaryButton title="Mark workout complete" onPress={complete} />
           )}
+
+          <PrimaryButton
+            title={completedToday ? 'Do another round' : 'Start workout'}
+            onPress={startWorkout}
+          />
 
           <PrimaryButton
             variant="secondary"

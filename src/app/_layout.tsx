@@ -5,6 +5,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AuthProvider, useAuth } from '@/providers/AuthProvider';
 import { ProgressProvider } from '@/providers/ProgressProvider';
+import { WorkoutSessionProvider } from '@/providers/WorkoutSessionProvider';
 
 export const unstable_settings = {
   initialRouteName: '(tabs)',
@@ -51,6 +52,7 @@ function RootNavigator() {
       <Stack.Screen name="sign-in" />
       <Stack.Screen name="onboarding" />
       <Stack.Screen name="paywall" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="workout" options={{ presentation: 'fullScreenModal' }} />
     </Stack>
   );
 }
@@ -62,7 +64,9 @@ export default function RootLayout() {
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <AuthProvider>
           <ProgressProvider>
-            <RootNavigator />
+            <WorkoutSessionProvider>
+              <RootNavigator />
+            </WorkoutSessionProvider>
           </ProgressProvider>
         </AuthProvider>
       </ThemeProvider>

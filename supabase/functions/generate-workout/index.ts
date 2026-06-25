@@ -40,7 +40,13 @@ interface OnboardingProfile {
   experience: string;
 }
 
-function buildPrompt(p: OnboardingProfile): string {
+const FEEDBACK_PROMPT: Record<string, string> = {
+  too_easy: 'Their last session felt TOO EASY — increase the challenge today.',
+  just_right: 'Their last session felt about right — keep a similar challenge.',
+  too_hard: 'Their last session felt TOO HARD — dial the intensity back today.',
+};
+
+function buildPrompt(p: OnboardingProfile, feedback?: string | null): string {
   const equipment = (p.equipment ?? []).map((e) => EQUIPMENT_LABELS[e] ?? e).join(', ');
   const day = new Date().toLocaleDateString('en-US', { weekday: 'long' });
   return [
@@ -49,6 +55,7 @@ function buildPrompt(p: OnboardingProfile): string {
     `Experience level: ${p.experience}.`,
     `Available time: ${p.minutesPerDay} minutes.`,
     `Available equipment: ${equipment || 'bodyweight only'}.`,
+    feedback && FEEDBACK_PROMPT[feedback] ? FEEDBACK_PROMPT[feedback] : '',
     'Design a single, varied, safe session with a warm-up and cooldown that fits the time budget.',
     'Respond with ONLY a JSON object: {title, focus, estimatedMinutes, blocks:[{title, exercises:[{name, sets?, reps?, durationSeconds?, restSeconds?, notes?}]}]}.',
   ].join('\n');
@@ -91,9 +98,11 @@ Deno.serve(async (req) => {
   if (!isPremium) return json({ error: 'premium_access required' }, 403);
 
   let profileInput: OnboardingProfile;
+  let feedback: string | null = null;
   try {
     const body = await req.json();
     profileInput = body.profile;
+    feedback = body.feedback ?? null;
     if (!profileInput?.goal) throw new Error('missing profile');
   } catch {
     return json({ error: 'Invalid request body' }, 400);
@@ -111,7 +120,7 @@ Deno.serve(async (req) => {
       response_format: { type: 'json_object' },
       messages: [
         { role: 'system', content: 'You output only valid JSON workout plans.' },
-        { role: 'user', content: buildPrompt(profileInput) },
+        { role: 'user', content: buildPrompt(profileInput, feedback) },
       ],
     }),
   });

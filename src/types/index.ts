@@ -87,3 +87,6 @@ export interface WorkoutCompletion {
   planTitle: string;
   durationMinutes: number;
 }
+
+/** Post-workout difficulty rating; feeds the next day's generation. */
+export type DifficultyFeedback = 'too_easy' | 'just_right' | 'too_hard';
