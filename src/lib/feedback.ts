@@ -1,24 +1,14 @@
-// Persists the user's most recent difficulty rating so the next workout
-// generation can adapt (harder if "too easy", easier if "too hard").
-
-import AsyncStorage from '@react-native-async-storage/async-storage';
+// The user's most recent difficulty rating, used to adapt the next workout.
+// Persisted via the synced preferences bag (profiles.preferences), so it
+// follows the user across devices when signed in.
 
 import type { DifficultyFeedback } from '@/types';
-
-const KEY = 'fitdaily.lastDifficulty.v1';
+import { getPreferences, updatePreferences } from './preferences';
 
 export async function getLastDifficulty(): Promise<DifficultyFeedback | null> {
-  try {
-    return (await AsyncStorage.getItem(KEY)) as DifficultyFeedback | null;
-  } catch {
-    return null;
-  }
+  return (await getPreferences()).lastDifficulty ?? null;
 }
 
 export async function setLastDifficulty(f: DifficultyFeedback): Promise<void> {
-  try {
-    await AsyncStorage.setItem(KEY, f);
-  } catch {
-    // best-effort
-  }
+  await updatePreferences({ lastDifficulty: f });
 }

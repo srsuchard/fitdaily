@@ -1,15 +1,17 @@
 // Daily workout reminder via a scheduled local notification.
 //
 // expo-notifications is a native capability: local notifications fire on a
-// device/dev build, NOT on web (and not in Expo Go for push). Everything here
-// is guarded so the UI works on web — the toggle just won't deliver anything
-// until the app runs on a device.
+// device/dev build, NOT on web. Everything here is guarded so the UI works on
+// web — the toggle just won't deliver anything until the app runs on a device.
+//
+// The on/off *preference* syncs across devices via profiles.preferences; the
+// actual scheduled notification is per-device.
 
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
-const ENABLED_KEY = 'fitdaily.reminderEnabled.v1';
+import { getPreferences, updatePreferences } from './preferences';
+
 export const REMINDER_HOUR = 18; // 6:00 PM local
 export const REMINDER_MINUTE = 0;
 
@@ -17,11 +19,7 @@ export const REMINDER_MINUTE = 0;
 export const remindersSupported = Platform.OS !== 'web';
 
 export async function isReminderEnabled(): Promise<boolean> {
-  try {
-    return (await AsyncStorage.getItem(ENABLED_KEY)) === '1';
-  } catch {
-    return false;
-  }
+  return (await getPreferences()).reminderEnabled ?? false;
 }
 
 /** Returns true if a daily reminder was scheduled (perms granted). */
@@ -42,7 +40,7 @@ export async function enableDailyReminder(): Promise<boolean> {
         minute: REMINDER_MINUTE,
       },
     });
-    await AsyncStorage.setItem(ENABLED_KEY, '1');
+    await updatePreferences({ reminderEnabled: true });
     return true;
   } catch {
     return false;
@@ -52,7 +50,7 @@ export async function enableDailyReminder(): Promise<boolean> {
 export async function disableDailyReminder(): Promise<void> {
   try {
     if (remindersSupported) await Notifications.cancelAllScheduledNotificationsAsync();
-    await AsyncStorage.setItem(ENABLED_KEY, '0');
+    await updatePreferences({ reminderEnabled: false });
   } catch {
     // best-effort
   }
