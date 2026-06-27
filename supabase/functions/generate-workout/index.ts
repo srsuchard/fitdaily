@@ -2,23 +2,26 @@
 //
 // The ONLY place the LLM API key lives. The mobile client POSTs the user's
 // onboarding profile + their auth JWT; this function verifies the user is
-// premium, calls the model, validates the JSON, and returns a WorkoutPlan.
+// premium, calls Claude, validates the JSON, and returns a WorkoutPlan.
 //
 // Deploy:
 //   supabase functions deploy generate-workout
 // Secrets (set once):
-//   supabase secrets set OPENAI_API_KEY=sk-...
+//   supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
 //   # SUPABASE_URL / SUPABASE_ANON_KEY are injected automatically.
 //
 // Then set EXPO_PUBLIC_WORKOUT_FN_URL in the app's .env to this function URL.
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import Anthropic from 'npm:@anthropic-ai/sdk';
 
-const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY')!;
+const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY')!;
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!;
 
-const MODEL = 'gpt-4o-mini';
+const MODEL = 'claude-opus-4-8';
+
+const anthropic = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
 
 const GOAL_LABELS: Record<string, string> = {
   lose_weight: 'Lose weight',
@@ -46,19 +49,65 @@ const FEEDBACK_PROMPT: Record<string, string> = {
   too_hard: 'Their last session felt TOO HARD — dial the intensity back today.',
 };
 
+// JSON Schema for structured outputs — mirrors the client's WorkoutPlan type
+// (minus aiGenerated, which we set server-side). Only `name` is required per
+// exercise; sets/reps/durationSeconds/restSeconds/notes are optional.
+const WORKOUT_SCHEMA = {
+  type: 'object',
+  properties: {
+    title: { type: 'string' },
+    focus: { type: 'string' },
+    estimatedMinutes: { type: 'integer' },
+    blocks: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          title: { type: 'string' },
+          exercises: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                name: { type: 'string' },
+                sets: { type: 'integer' },
+                reps: { type: 'integer' },
+                durationSeconds: { type: 'integer' },
+                restSeconds: { type: 'integer' },
+                notes: { type: 'string' },
+              },
+              required: ['name'],
+              additionalProperties: false,
+            },
+          },
+        },
+        required: ['title', 'exercises'],
+        additionalProperties: false,
+      },
+    },
+  },
+  required: ['title', 'focus', 'estimatedMinutes', 'blocks'],
+  additionalProperties: false,
+} as const;
+
+const SYSTEM_PROMPT =
+  'You are a certified personal trainer who designs safe, varied, time-budgeted ' +
+  'single-session workouts. Always include a warm-up and a cooldown that fit the ' +
+  "time budget, and respect the client's available equipment and experience level.";
+
 function buildPrompt(p: OnboardingProfile, feedback?: string | null): string {
   const equipment = (p.equipment ?? []).map((e) => EQUIPMENT_LABELS[e] ?? e).join(', ');
   const day = new Date().toLocaleDateString('en-US', { weekday: 'long' });
   return [
-    `You are a certified personal trainer creating ONE workout for ${day}.`,
+    `Design ONE workout for ${day}.`,
     `Client goal: ${GOAL_LABELS[p.goal] ?? p.goal}.`,
     `Experience level: ${p.experience}.`,
     `Available time: ${p.minutesPerDay} minutes.`,
     `Available equipment: ${equipment || 'bodyweight only'}.`,
     feedback && FEEDBACK_PROMPT[feedback] ? FEEDBACK_PROMPT[feedback] : '',
-    'Design a single, varied, safe session with a warm-up and cooldown that fits the time budget.',
-    'Respond with ONLY a JSON object: {title, focus, estimatedMinutes, blocks:[{title, exercises:[{name, sets?, reps?, durationSeconds?, restSeconds?, notes?}]}]}.',
-  ].join('\n');
+  ]
+    .filter(Boolean)
+    .join('\n');
 }
 
 function json(body: unknown, status = 200): Response {
@@ -108,31 +157,32 @@ Deno.serve(async (req) => {
     return json({ error: 'Invalid request body' }, 400);
   }
 
-  // Call the model with JSON mode for reliable structured output.
-  const aiRes = await fetch('https://api.openai.com/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
+  // Call Claude with structured outputs for reliable, schema-valid JSON.
+  let message;
+  try {
+    message = await anthropic.messages.create({
       model: MODEL,
-      response_format: { type: 'json_object' },
-      messages: [
-        { role: 'system', content: 'You output only valid JSON workout plans.' },
-        { role: 'user', content: buildPrompt(profileInput, feedback) },
-      ],
-    }),
-  });
-
-  if (!aiRes.ok) {
-    return json({ error: 'LLM request failed', detail: await aiRes.text() }, 502);
+      max_tokens: 4096,
+      system: SYSTEM_PROMPT,
+      output_config: { format: { type: 'json_schema', schema: WORKOUT_SCHEMA } },
+      messages: [{ role: 'user', content: buildPrompt(profileInput, feedback) }],
+    });
+  } catch (e) {
+    return json({ error: 'LLM request failed', detail: (e as Error).message }, 502);
   }
 
-  const completion = await aiRes.json();
+  if (message.stop_reason === 'refusal') {
+    return json({ error: 'LLM declined the request' }, 502);
+  }
+
+  const textBlock = message.content.find((b) => b.type === 'text');
+  if (!textBlock || textBlock.type !== 'text') {
+    return json({ error: 'LLM returned no content' }, 502);
+  }
+
   let plan: Record<string, unknown>;
   try {
-    plan = JSON.parse(completion.choices[0].message.content);
+    plan = JSON.parse(textBlock.text);
   } catch {
     return json({ error: 'LLM returned invalid JSON' }, 502);
   }
