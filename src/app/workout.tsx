@@ -8,9 +8,11 @@ import { PrimaryButton } from '@/components/primary-button';
 import { ScreenBackground } from '@/components/screen-background';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { WorkoutReward } from '@/components/workout-reward';
 import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { setLastDifficulty } from '@/lib/feedback';
+import type { CompletionResult } from '@/lib/gamification';
 import { useProgress } from '@/providers/ProgressProvider';
 import { useWorkoutSession } from '@/providers/WorkoutSessionProvider';
 import { DIFFICULTY_OPTIONS } from '@/constants/difficulty';
@@ -58,6 +60,7 @@ export default function WorkoutPlayer() {
   const [remaining, setRemaining] = useState<number | null>(null);
   const [paused, setPaused] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [reward, setReward] = useState<CompletionResult | null>(null);
   const startRef = useRef(Date.now());
 
   const current = segments[index];
@@ -100,17 +103,35 @@ export default function WorkoutPlayer() {
       try {
         await setLastDifficulty(fb);
         const minutes = Math.max(1, Math.round((Date.now() - startRef.current) / 60000));
-        await recordCompletion(activePlan.title, minutes);
-        setActivePlan(null);
-        router.replace('/(tabs)');
+        const result = await recordCompletion(activePlan.title, minutes);
+        if (Platform.OS !== 'web') {
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+        }
+        setReward(result);
       } finally {
         setSaving(false);
       }
     },
-    [activePlan, recordCompletion, router, setActivePlan],
+    [activePlan, recordCompletion],
   );
 
+  const leaveToHome = useCallback(() => {
+    setActivePlan(null);
+    router.replace('/(tabs)');
+  }, [router, setActivePlan]);
+
   if (!activePlan) return <Redirect href="/(tabs)" />;
+
+  // Reward screen takes over once a completion is logged.
+  if (reward) {
+    return (
+      <ScreenBackground style={styles.container}>
+        <SafeAreaView style={styles.safe}>
+          <WorkoutReward result={reward} onContinue={leaveToHome} />
+        </SafeAreaView>
+      </ScreenBackground>
+    );
+  }
 
   const isDone = phase === 'done' || !current;
   const progress = segments.length ? (isDone ? 1 : index / segments.length) : 1;

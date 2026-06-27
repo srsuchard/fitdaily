@@ -1,10 +1,13 @@
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ConsistencyBanner } from '@/components/streak-banner';
+import { DailyChallenge } from '@/components/daily-challenge';
 import { HealthStats } from '@/components/health-stats';
+import { LevelCard } from '@/components/level-card';
 import { PrimaryButton } from '@/components/primary-button';
 import { ScreenBackground } from '@/components/screen-background';
 import { ThemedText } from '@/components/themed-text';
@@ -27,7 +30,8 @@ function greeting(): string {
 export default function TodayScreen() {
   const router = useRouter();
   const { onboarding, isPremium, accessToken } = useAuth();
-  const { completedToday, streak, streakProtected } = useProgress();
+  const { completedToday, streak, streakProtected, level, unlockedCount, achievements } =
+    useProgress();
   const { setActivePlan } = useWorkoutSession();
 
   const [plan, setPlan] = useState<WorkoutPlan>(FREE_TEMPLATES[0]);
@@ -77,15 +81,34 @@ export default function TodayScreen() {
             Today’s workout
           </ThemedText>
 
-          <ConsistencyBanner
-            streak={streak}
-            completedToday={completedToday}
-            protectedActive={streakProtected}
-          />
+          <Animated.View entering={FadeInDown.springify().damping(16)}>
+            <LevelCard
+              info={level}
+              unlockedCount={unlockedCount}
+              totalBadges={achievements.length}
+              onPress={() => router.push('/(tabs)/progress')}
+            />
+          </Animated.View>
 
-          <HealthStats />
+          <Animated.View entering={FadeInDown.delay(80).springify().damping(16)}>
+            <ConsistencyBanner
+              streak={streak}
+              completedToday={completedToday}
+              protectedActive={streakProtected}
+            />
+          </Animated.View>
 
-          <WorkoutCard plan={plan} />
+          <Animated.View entering={FadeInDown.delay(160).springify().damping(16)}>
+            <DailyChallenge completed={completedToday} />
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.delay(240).springify().damping(16)}>
+            <HealthStats />
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.delay(320).springify().damping(16)}>
+            <WorkoutCard plan={plan} />
+          </Animated.View>
 
           {completedToday && (
             <View style={styles.doneRow}>
