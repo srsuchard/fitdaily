@@ -1,9 +1,27 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 
 import { fetchRemoteCompletions, saveRemoteCompletion } from '@/lib/completions';
 import {
+  diffCompletion,
+  evaluateAchievements,
+  levelInfo,
+  statsFromCompletions,
+  type CompletionResult,
+  type EvaluatedAchievement,
+  type GamificationStats,
+  type LevelInfo,
+} from '@/lib/gamification';
+import {
   addCompletion,
-  currentStreak,
   getCompletions,
   isCompletedOn,
   isStreakProtected,
@@ -25,7 +43,22 @@ interface ProgressContextValue {
   last7: { date: string; done: boolean }[];
   last30: { date: string; done: boolean }[];
   totalWorkouts: number;
-  recordCompletion: (planTitle: string, durationMinutes: number) => Promise<void>;
+  /** Longest consecutive-day streak ever recorded. */
+  longestStreak: number;
+  /** Sum of every completion's duration, in minutes. */
+  totalMinutes: number;
+  /** Lifetime XP, derived purely from completions. */
+  xp: number;
+  /** Current level + progress toward the next one. */
+  level: LevelInfo;
+  /** Raw gamification stats (drives per-achievement progress bars). */
+  stats: GamificationStats;
+  /** All achievements with their unlocked state. */
+  achievements: EvaluatedAchievement[];
+  /** Count of unlocked achievements. */
+  unlockedCount: number;
+  /** Logs a completion and returns the XP/level/badge reward earned. */
+  recordCompletion: (planTitle: string, durationMinutes: number) => Promise<CompletionResult>;
 }
 
 const ProgressContext = createContext<ProgressContextValue | null>(null);
@@ -38,6 +71,12 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   const remote = !demoMode && userId !== null;
 
   const [completions, setCompletions] = useState<WorkoutCompletion[]>([]);
+  // Always-current snapshot so recordCompletion can diff before/after without
+  // re-subscribing on every completions change. Updated post-render via effect.
+  const completionsRef = useRef(completions);
+  useEffect(() => {
+    completionsRef.current = completions;
+  }, [completions]);
 
   useEffect(() => {
     let active = true;
@@ -56,31 +95,43 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
   }, [remote, userId]);
 
   const recordCompletion = useCallback(
-    async (planTitle: string, durationMinutes: number) => {
+    async (planTitle: string, durationMinutes: number): Promise<CompletionResult> => {
+      const before = completionsRef.current;
       const entry: WorkoutCompletion = { date: todayISO(), planTitle, durationMinutes };
+      let after: WorkoutCompletion[];
       if (remote && userId) {
         await saveRemoteCompletion(userId, entry);
-        setCompletions(await fetchRemoteCompletions());
+        after = await fetchRemoteCompletions();
       } else {
-        setCompletions(await addCompletion(entry));
+        after = await addCompletion(entry);
       }
+      setCompletions(after);
+      return diffCompletion(before, after, freezes);
     },
-    [remote, userId],
+    [remote, userId, freezes],
   );
 
-  const value = useMemo<ProgressContextValue>(
-    () => ({
+  const value = useMemo<ProgressContextValue>(() => {
+    const stats = statsFromCompletions(completions, freezes);
+    const achievements = evaluateAchievements(stats);
+    return {
       completions,
-      streak: currentStreak(completions, freezes),
+      streak: stats.currentStreak,
       streakProtected: isStreakProtected(completions, freezes),
       completedToday: isCompletedOn(completions),
       last7: lastNDays(completions, 7),
       last30: lastNDays(completions, 30),
       totalWorkouts: completions.length,
+      longestStreak: stats.longestStreak,
+      totalMinutes: stats.totalMinutes,
+      xp: stats.xp,
+      level: levelInfo(stats.xp),
+      stats,
+      achievements,
+      unlockedCount: achievements.filter((a) => a.unlocked).length,
       recordCompletion,
-    }),
-    [completions, freezes, recordCompletion],
-  );
+    };
+  }, [completions, freezes, recordCompletion]);
 
   return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>;
 }

@@ -2,7 +2,9 @@ import { useRouter } from 'expo-router';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AchievementGrid } from '@/components/achievement-grid';
 import { ConsistencyChart, WeekDots } from '@/components/consistency-chart';
+import { LevelCard } from '@/components/level-card';
 import { PrimaryButton } from '@/components/primary-button';
 import { ScreenBackground } from '@/components/screen-background';
 import { ThemedText } from '@/components/themed-text';
@@ -25,7 +27,8 @@ function Stat({ value, label }: { value: string | number; label: string }) {
 export default function ProgressScreen() {
   const router = useRouter();
   const { isPremium } = useAuth();
-  const { streak, totalWorkouts, last7, last30 } = useProgress();
+  const { streak, longestStreak, totalWorkouts, last7, last30, level, stats, achievements, unlockedCount } =
+    useProgress();
 
   return (
     <ScreenBackground style={styles.container}>
@@ -33,15 +36,23 @@ export default function ProgressScreen() {
         <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
           <ThemedText type="title">Progress</ThemedText>
 
+          <LevelCard info={level} unlockedCount={unlockedCount} totalBadges={achievements.length} />
+
           <View style={styles.statsRow}>
             <Stat value={streak} label="Day streak" />
-            <Stat value={totalWorkouts} label="Total workouts" />
+            <Stat value={longestStreak} label="Best streak" />
+            <Stat value={totalWorkouts} label="Workouts" />
           </View>
 
           <ThemedView type="backgroundElement" style={styles.weekCard}>
             <ThemedText type="smallBold">This week</ThemedText>
             <WeekDots days={last7} />
           </ThemedView>
+
+          <ThemedText type="subtitle" style={styles.sectionTitle}>
+            Achievements
+          </ThemedText>
+          <AchievementGrid achievements={achievements} stats={stats} />
 
           {isPremium ? (
             <ConsistencyChart days={last30} />
@@ -72,7 +83,8 @@ const styles = StyleSheet.create({
   safe: { flex: 1 },
   scroll: { padding: Spacing.four, gap: Spacing.three, paddingBottom: Spacing.six },
   statsRow: { flexDirection: 'row', gap: Spacing.three },
-  stat: { flex: 1, padding: Spacing.four, borderRadius: Spacing.four, gap: Spacing.one },
+  stat: { flex: 1, padding: Spacing.three, borderRadius: Spacing.four, gap: Spacing.one },
+  sectionTitle: { marginTop: Spacing.two },
   weekCard: { padding: Spacing.four, borderRadius: Spacing.four, gap: Spacing.three },
   lockCard: { padding: Spacing.four, borderRadius: Spacing.four, gap: Spacing.three },
   lockText: { lineHeight: 20 },

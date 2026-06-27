@@ -20,6 +20,13 @@ function daysAgoISO(n: number, from = new Date()): string {
   return todayISO(d);
 }
 
+/** The ISO day after `date` (UTC-stable, matches todayISO's UTC dates). */
+function nextDayISO(date: string): string {
+  const d = new Date(`${date}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + 1);
+  return d.toISOString().slice(0, 10);
+}
+
 export async function getCompletions(): Promise<WorkoutCompletion[]> {
   try {
     const raw = await AsyncStorage.getItem(KEY);
@@ -83,6 +90,20 @@ export function isStreakProtected(
 ): boolean {
   if (freezes <= 0) return false;
   return currentStreak(completions, freezes, from) > currentStreak(completions, 0, from);
+}
+
+/** The longest run of consecutive completed days ever recorded. */
+export function longestStreak(completions: WorkoutCompletion[]): number {
+  const dates = [...new Set(completions.map((c) => c.date))].sort();
+  let best = 0;
+  let run = 0;
+  let prev: string | null = null;
+  for (const date of dates) {
+    run = prev && nextDayISO(prev) === date ? run + 1 : 1;
+    if (run > best) best = run;
+    prev = date;
+  }
+  return best;
 }
 
 /** Boolean completion flags for the last `n` days, oldest → newest. */
