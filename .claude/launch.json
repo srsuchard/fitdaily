@@ -1,0 +1,22 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web-demo",
+      "runtimeExecutable": "env",
+      "runtimeArgs": [
+        "EXPO_PUBLIC_SUPABASE_URL=",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY=",
+        "EXPO_PUBLIC_REVENUECAT_IOS_KEY=",
+        "EXPO_PUBLIC_REVENUECAT_ANDROID_KEY=",
+        "npx",
+        "expo",
+        "start",
+        "--web",
+        "--port",
+        "8082"
+      ],
+      "port": 8082
+    }
+  ]
+}

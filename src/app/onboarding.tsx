@@ -74,31 +74,38 @@ export default function OnboardingScreen() {
   const toggleEquip = (e: Equipment) =>
     setEquipment((cur) => (cur.includes(e) ? cur.filter((x) => x !== e) : [...cur, e]));
 
-  // Save answers, generate a personalized first workout, and reveal it.
+  const buildProfile = (): OnboardingProfile => ({
+    goal,
+    minutesPerDay: minutes,
+    equipment: equipment.length ? equipment : ['bodyweight'],
+    experience,
+  });
+
+  // Generate a personalized first workout and reveal it. We intentionally do
+  // NOT persist onboarding yet — completing it flips `hasOnboarded`, which the
+  // root route guard uses to redirect away from /onboarding, skipping this step.
   const buildPlan = async () => {
-    const profile: OnboardingProfile = {
-      goal,
-      minutesPerDay: minutes,
-      equipment: equipment.length ? equipment : ['bodyweight'],
-      experience,
-    };
-    await completeOnboarding(profile);
     setStep(PLAN_STEP);
     setGenerating(true);
     try {
-      setPlan(await generateDailyWorkout(profile, accessToken));
+      setPlan(await generateDailyWorkout(buildProfile(), accessToken));
     } finally {
       setGenerating(false);
     }
   };
 
-  const startFirstWorkout = () => {
+  // Persist onboarding only on the way out, then route to the chosen destination.
+  const startFirstWorkout = async () => {
     if (!plan) return;
     setActivePlan(plan);
+    await completeOnboarding(buildProfile());
     router.replace('/workout');
   };
 
-  const goHome = () => router.replace('/');
+  const goHome = async () => {
+    await completeOnboarding(buildProfile());
+    router.replace('/');
+  };
 
   return (
     <ScreenBackground style={styles.container}>

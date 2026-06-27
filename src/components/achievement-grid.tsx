@@ -21,7 +21,7 @@ function Badge({
   return (
     <ThemedView type="backgroundElement" style={[styles.badge, !unlocked && styles.locked]}>
       <ThemedText style={[styles.emoji, !unlocked && styles.lockedEmoji]}>{def.emoji}</ThemedText>
-      <ThemedText type="smallBold" style={styles.badgeTitle} numberOfLines={1}>
+      <ThemedText type="smallBold" style={styles.badgeTitle} numberOfLines={2}>
         {def.title}
       </ThemedText>
       {unlocked ? (
