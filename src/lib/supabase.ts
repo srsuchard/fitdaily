@@ -4,12 +4,14 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 import { env, isSupabaseConfigured } from './env';
+import type { Database } from '@/types/supabase';
 
 /**
- * `null` when Supabase env vars are absent (demo mode). Callers must guard.
+ * Typed with the generated `Database` schema, so `.from()` queries are
+ * column-checked. `null` when env vars are absent (demo mode) — callers guard.
  */
-export const supabase: SupabaseClient | null = isSupabaseConfigured
-  ? createClient(env.supabaseUrl!, env.supabaseAnonKey!, {
+export const supabase: SupabaseClient<Database> | null = isSupabaseConfigured
+  ? createClient<Database>(env.supabaseUrl!, env.supabaseAnonKey!, {
       auth: {
         storage: AsyncStorage,
         autoRefreshToken: true,

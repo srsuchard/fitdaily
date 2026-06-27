@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { supabase } from './supabase';
 import type { DifficultyFeedback } from '@/types';
+import type { Json } from '@/types/supabase';
 
 export interface Preferences {
   lastDifficulty?: DifficultyFeedback | null;
@@ -68,7 +69,10 @@ export async function updatePreferences(patch: Partial<Preferences>): Promise<Pr
       .eq('id', uid)
       .maybeSingle();
     const merged: Preferences = { ...((data?.preferences as Preferences) ?? {}), ...patch };
-    await supabase.from('profiles').update({ preferences: merged }).eq('id', uid);
+    await supabase
+      .from('profiles')
+      .update({ preferences: merged as unknown as Json })
+      .eq('id', uid);
     await writeLocal(merged);
     return merged;
   }
