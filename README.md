@@ -6,35 +6,6 @@ Supabase backend, RevenueCat subscriptions, and an LLM-powered adaptive workout 
 > **App name `FitDaily` is a placeholder** — change it in `app.json` (`name`, `slug`,
 > `scheme`, `ios.bundleIdentifier`, `android.package`) and `package.json`.
 
-## Quick start
-
-```bash
-npm install
-cp .env.example .env   # optional — app runs in demo mode with no values
-npx expo start         # press i for iOS simulator, or scan QR in Expo Go
-```
-
-**Demo mode:** with no `.env` values the app boots with a local mock identity,
-mock workout generation, and a "simulate premium" toggle (Profile tab) so the full
-UI is explorable without any backend.
-
-## Development build (HealthKit + RevenueCat)
-
-Apple HealthKit and RevenueCat are **native modules** — they don't run in Expo Go.
-The code degrades gracefully (HealthKit stats simply don't appear; purchases are
-simulated), but to exercise them for real you need a development build:
-
-```bash
-# Local simulator/device build:
-npx expo run:ios
-
-# Or via EAS (uses the "development" profile in eas.json):
-eas build --profile development --platform ios
-```
-
-HealthKit also requires the **HealthKit capability** on your App ID in the Apple
-Developer portal; the config plugin adds the entitlement + usage strings at build time.
-
 ## Architecture
 
 ```
