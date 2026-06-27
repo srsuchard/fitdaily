@@ -38,7 +38,7 @@ supabase/
     0001_init_rls.sql       profiles + entitlement + RLS trust model (pre-existing)
     0002_fitness_domain.sql daily_workouts + workout_completions + streak RPC
   functions/
-    generate-workout/       Edge Function: holds the OpenAI key, returns a WorkoutPlan
+    generate-workout/       Edge Function: holds the Anthropic key, returns a WorkoutPlan
 ```
 
 ## Free vs Premium
@@ -58,7 +58,7 @@ The client paywall is just UX.
 
 1. Create a Supabase project; run `supabase db push` to apply both migrations.
 2. `supabase functions deploy generate-workout` and
-   `supabase secrets set OPENAI_API_KEY=sk-...`
+   `supabase secrets set ANTHROPIC_API_KEY=sk-ant-...`
 3. In RevenueCat: create the `premium_access` entitlement + monthly/annual products,
    and wire the webhook to update `profiles.entitlement` via the service_role key.
 4. Fill `.env` with the Supabase URL/anon key, RevenueCat public keys, and the
@@ -66,6 +66,6 @@ The client paywall is just UX.
 
 ## Key safety
 
-The OpenAI key and Supabase `service_role` key are **never** in the app bundle — only
+The Anthropic key and Supabase `service_role` key are **never** in the app bundle — only
 `EXPO_PUBLIC_*` values ship to the client. The LLM is called exclusively from the
 Edge Function.
