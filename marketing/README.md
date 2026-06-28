@@ -41,4 +41,18 @@ python3 -m http.server 8099
 - Copy/headlines: edit the text in `index.html` (search for the section you want).
 - Brand colors: the `:root` CSS variables at the top (`--accent` is FitDaily's `#FF5A3C`).
 - Contact email: search for `samuel.suchard@gmail.com`.
-- Social share image: add an `og:image` meta tag pointing to a hosted preview image.
+
+## Growth / distribution
+- **Social share card:** `assets/og-image.png` (1200×630) is referenced by the
+  `og:image` / `twitter:image` tags so links show a rich preview. Regenerate it with
+  `scripts/make_og.py` if you change branding. Validate at
+  https://www.opengraph.xyz or by pasting the URL into iMessage/Slack/X.
+- **Referral buttons:** after a successful signup the page reveals Share / Copy link /
+  Post-on-X buttons (native share sheet on mobile). No setup needed.
+- **Analytics (needs 1 step):** the page has an inert GoatCounter snippet at the bottom.
+  Sign up at https://www.goatcounter.com, pick a code, and replace `YOURCODE` in
+  `index.html`. Or enable **Netlify Analytics** in the dashboard for a zero-code,
+  server-side option ($9/mo).
+- **Custom domain:** buy a domain (e.g. `fitdaily.app`), then in Netlify →
+  Domain management → add it and follow the DNS steps. Afterwards, update the absolute
+  `og:url` / `og:image` / `twitter:image` URLs and `SHARE_URL` fallback in `index.html`.
