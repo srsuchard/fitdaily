@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FitDaily — One personalized workout a day</title>
+  <meta name="description" content="FitDaily gives you one AI-personalized workout every day, built around your goals, time, and equipment. Join the beta." />
+
+  <!-- Social share -->
+  <meta property="og:title" content="FitDaily — One personalized workout a day" />
+  <meta property="og:description" content="One AI-personalized workout every day, built around your goals, time, and equipment. Join the beta." />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+
+  <link rel="icon" href="assets/favicon.png" />
+  <style>
+    :root {
+      --accent: #FF5A3C;
+      --accent-2: #208AEF;
+      --accent-soft: #FFE9E3;
+      --blue-soft: #E6F4FE;
+      --text: #0B0D12;
+      --text-secondary: #5B616E;
+      --bg: #ffffff;
+      --bg-soft: #F7F8FA;
+      --bg-element: #F0F1F4;
+      --border: #E6E7EB;
+      --success: #16A34A;
+      --radius: 18px;
+      --shadow: 0 20px 60px -20px rgba(11, 13, 18, 0.18);
+      --shadow-sm: 0 6px 20px -8px rgba(11, 13, 18, 0.16);
+      --maxw: 1080px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --text: #F4F5F7;
+        --text-secondary: #A2A8B4;
+        --bg: #0A0B0D;
+        --bg-soft: #131417;
+        --bg-element: #1B1D21;
+        --border: #26282D;
+        --accent-soft: #2A1812;
+        --blue-soft: #0E1B27;
+        --shadow: 0 20px 60px -20px rgba(0, 0, 0, 0.6);
+        --shadow-sm: 0 6px 20px -8px rgba(0, 0, 0, 0.5);
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: var(--font);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+    section { padding: 96px 24px; }
+    .wrap { max-width: var(--maxw); margin: 0 auto; }
+
+    /* Nav */
+    header {
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: saturate(180%) blur(14px);
+      -webkit-backdrop-filter: saturate(180%) blur(14px);
+      background: color-mix(in srgb, var(--bg) 78%, transparent);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav {
+      max-width: var(--maxw); margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 24px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; letter-spacing: -0.02em; }
+    .brand .mark {
+      width: 30px; height: 30px; border-radius: 9px;
+      background: linear-gradient(135deg, var(--accent), #FF8A5C);
+      display: grid; place-items: center; color: #fff; font-size: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .nav-links { display: flex; align-items: center; gap: 28px; }
+    .nav-links a { color: var(--text-secondary); font-size: 15px; font-weight: 500; transition: color .15s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-links .btn { color: #fff; }
+    @media (max-width: 720px) { .nav-links .hide-sm { display: none; } }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent); color: #fff; font-weight: 600; font-size: 15px;
+      padding: 12px 22px; border-radius: 999px; border: none; cursor: pointer;
+      transition: transform .12s ease, box-shadow .2s ease, filter .15s;
+      box-shadow: 0 8px 24px -8px color-mix(in srgb, var(--accent) 70%, transparent);
+    }
+    .btn:hover { transform: translateY(-1px); filter: brightness(1.04); }
+    .btn:active { transform: translateY(0); }
+    .btn.ghost {
+      background: var(--bg-element); color: var(--text);
+      box-shadow: none; border: 1px solid var(--border);
+    }
+    .btn.lg { padding: 16px 30px; font-size: 17px; }
+
+    /* Hero */
+    .hero { padding-top: 80px; padding-bottom: 60px; position: relative; }
+    .hero-glow {
+      position: absolute; inset: -10% -20% auto -20%; height: 520px; z-index: -1;
+      background:
+        radial-gradient(600px 300px at 20% 0%, color-mix(in srgb, var(--accent) 22%, transparent), transparent 70%),
+        radial-gradient(600px 300px at 85% 10%, color-mix(in srgb, var(--accent-2) 18%, transparent), transparent 70%);
+      filter: blur(10px);
+    }
+    .hero-grid {
+      display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 48px; align-items: center;
+    }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent-soft); color: var(--accent);
+      font-weight: 600; font-size: 13px; padding: 7px 14px; border-radius: 999px;
+      letter-spacing: .01em; margin-bottom: 22px;
+    }
+    .eyebrow .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: pulse 1.8s infinite; }
+    @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:.35 } }
+    h1 {
+      font-size: clamp(38px, 5.6vw, 60px); line-height: 1.04; letter-spacing: -0.035em;
+      font-weight: 800; margin-bottom: 20px;
+    }
+    h1 .grad {
+      background: linear-gradient(120deg, var(--accent), #FF9A6C);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .lede { font-size: clamp(17px, 2vw, 20px); color: var(--text-secondary); max-width: 30ch; margin-bottom: 30px; }
+    .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+    .hero-note { font-size: 13px; color: var(--text-secondary); margin-top: 16px; display: flex; align-items: center; gap: 8px; }
+    .hero-note .check { color: var(--success); font-weight: 700; }
+
+    @media (max-width: 860px) {
+      .hero-grid { grid-template-columns: 1fr; text-align: center; }
+      .lede { margin-left: auto; margin-right: auto; }
+      .hero-cta { justify-content: center; }
+      .hero-note { justify-content: center; }
+      .phone-wrap { order: -1; }
+    }
+
+    /* Phone mockup */
+    .phone-wrap { display: flex; justify-content: center; perspective: 1400px; }
+    .phone {
+      width: 290px; background: #0A0B0D; border-radius: 44px; padding: 12px;
+      box-shadow: var(--shadow), 0 0 0 2px rgba(255,255,255,0.04) inset;
+      transform: rotateY(-12deg) rotateX(4deg) translateZ(0); transition: transform .5s ease;
+    }
+    .phone:hover { transform: rotateY(-4deg) rotateX(2deg); }
+    .phone-screen {
+      background: var(--bg); border-radius: 34px; overflow: hidden; height: 590px;
+      display: flex; flex-direction: column; position: relative;
+    }
+    .notch { position:absolute; top:10px; left:50%; transform:translateX(-50%); width:90px; height:24px; background:#0A0B0D; border-radius:14px; z-index:5; }
+    .scr-top { padding: 38px 20px 14px; }
+    .scr-greet { font-size: 13px; color: var(--text-secondary); font-weight: 600; }
+    .scr-date { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; margin-top: 2px; }
+    .streak-banner {
+      margin: 8px 20px 0; padding: 12px 14px; border-radius: 14px;
+      background: linear-gradient(120deg, var(--accent), #FF8A5C); color: #fff;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .streak-banner .fire { font-size: 20px; }
+    .streak-banner b { font-size: 16px; }
+    .streak-banner small { opacity: .9; font-size: 12px; display: block; }
+    .workout-card {
+      margin: 16px 20px 0; background: var(--bg-soft); border: 1px solid var(--border);
+      border-radius: 18px; padding: 16px; flex: 1;
+    }
+    .wc-tag { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: .06em; }
+    .wc-title { font-size: 19px; font-weight: 800; letter-spacing: -0.02em; margin: 4px 0 2px; }
+    .wc-meta { font-size: 12px; color: var(--text-secondary); margin-bottom: 14px; }
+    .ex { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid var(--border); }
+    .ex:first-of-type { border-top: none; }
+    .ex .n { width: 26px; height: 26px; border-radius: 8px; background: var(--bg-element); display: grid; place-items: center; font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+    .ex .name { font-size: 13px; font-weight: 600; flex: 1; }
+    .ex .reps { font-size: 12px; color: var(--text-secondary); font-weight: 600; }
+    .scr-btn { margin: 14px 20px 18px; background: var(--accent); color: #fff; text-align: center; padding: 14px; border-radius: 14px; font-weight: 700; font-size: 15px; }
+    .scr-tabs { display: flex; border-top: 1px solid var(--border); padding: 10px 0 14px; }
+    .scr-tabs div { flex: 1; text-align: center; font-size: 10px; color: var(--text-secondary); font-weight: 600; }
+    .scr-tabs div.active { color: var(--accent); }
+    .scr-tabs .ic { font-size: 17px; display: block; margin-bottom: 2px; }
+
+    /* Logos / social proof strip */
+    .strip { padding: 28px 24px; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--bg-soft); }
+    .strip-inner { max-width: var(--maxw); margin: 0 auto; display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; color: var(--text-secondary); font-size: 14px; font-weight: 600; }
+    .strip-inner span { display: flex; align-items: center; gap: 8px; }
+
+    /* Section heading */
+    .sec-head { text-align: center; max-width: 640px; margin: 0 auto 56px; }
+    .sec-head .kicker { color: var(--accent); font-weight: 700; font-size: 14px; text-transform: uppercase; letter-spacing: .08em; }
+    .sec-head h2 { font-size: clamp(28px, 4vw, 40px); letter-spacing: -0.03em; font-weight: 800; margin: 10px 0 14px; line-height: 1.1; }
+    .sec-head p { color: var(--text-secondary); font-size: 18px; }
+
+    /* Features */
+    .features { background: var(--bg-soft); }
+    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    @media (max-width: 860px) { .feature-grid { grid-template-columns: 1fr; } }
+    .card {
+      background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 26px; box-shadow: var(--shadow-sm); transition: transform .18s ease, border-color .18s;
+    }
+    .card:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--accent) 40%, var(--border)); }
+    .card .ic { width: 48px; height: 48px; border-radius: 13px; background: var(--accent-soft); display: grid; place-items: center; font-size: 24px; margin-bottom: 16px; }
+    .card h3 { font-size: 19px; letter-spacing: -0.02em; margin-bottom: 8px; }
+    .card p { color: var(--text-secondary); font-size: 15px; }
+
+    /* How it works */
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; counter-reset: step; }
+    @media (max-width: 860px) { .steps { grid-template-columns: 1fr; } }
+    .step { position: relative; padding-top: 8px; }
+    .step .num {
+      width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center;
+      background: var(--accent); color: #fff; font-weight: 800; font-size: 18px; margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .step h3 { font-size: 18px; margin-bottom: 6px; letter-spacing: -0.02em; }
+    .step p { color: var(--text-secondary); font-size: 15px; }
+
+    /* Pricing / free vs premium */
+    .pricing { background: var(--bg-soft); }
+    .price-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 760px; margin: 0 auto; }
+    @media (max-width: 720px) { .price-grid { grid-template-columns: 1fr; } }
+    .plan { background: var(--bg); border: 1px solid var(--border); border-radius: 22px; padding: 30px; position: relative; }
+    .plan.pro { border: 2px solid var(--accent); box-shadow: var(--shadow); }
+    .plan .badge { position: absolute; top: -13px; right: 24px; background: var(--accent); color: #fff; font-size: 12px; font-weight: 700; padding: 5px 12px; border-radius: 999px; }
+    .plan h3 { font-size: 22px; letter-spacing: -0.02em; }
+    .plan .pp { font-size: 14px; color: var(--text-secondary); margin: 4px 0 20px; }
+    .plan ul { list-style: none; display: grid; gap: 12px; }
+    .plan li { display: flex; gap: 10px; font-size: 15px; align-items: flex-start; }
+    .plan li .c { color: var(--success); font-weight: 800; flex-shrink: 0; }
+    .plan li.off { color: var(--text-secondary); opacity: .6; }
+    .plan li.off .c { color: var(--text-secondary); }
+
+    /* Beta signup */
+    .beta { text-align: center; position: relative; overflow: hidden; }
+    .beta-card {
+      max-width: 620px; margin: 0 auto; background: var(--bg);
+      border: 1px solid var(--border); border-radius: 26px; padding: 48px 40px;
+      box-shadow: var(--shadow); position: relative;
+    }
+    .beta-card::before {
+      content: ""; position: absolute; inset: 0; border-radius: 26px; padding: 1px;
+      background: linear-gradient(120deg, var(--accent), transparent 40%, var(--accent-2));
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor; mask-composite: exclude; opacity: .5; pointer-events: none;
+    }
+    .beta-card h2 { font-size: clamp(26px, 4vw, 36px); letter-spacing: -0.03em; margin-bottom: 12px; }
+    .beta-card p { color: var(--text-secondary); font-size: 17px; margin-bottom: 28px; }
+    .signup { display: flex; gap: 10px; max-width: 440px; margin: 0 auto; }
+    @media (max-width: 520px) { .signup { flex-direction: column; } }
+    .signup input {
+      flex: 1; padding: 14px 18px; border-radius: 999px; border: 1px solid var(--border);
+      background: var(--bg-soft); color: var(--text); font-size: 16px; font-family: var(--font);
+      outline: none; transition: border-color .15s;
+    }
+    .signup input:focus { border-color: var(--accent); }
+    .signup .btn { white-space: nowrap; }
+    .form-msg { margin-top: 16px; font-size: 14px; font-weight: 600; min-height: 20px; }
+    .form-msg.ok { color: var(--success); }
+    .form-msg.err { color: var(--accent); }
+    .beta-meta { margin-top: 20px; font-size: 13px; color: var(--text-secondary); }
+
+    /* FAQ */
+    .faq-list { max-width: 720px; margin: 0 auto; display: grid; gap: 12px; }
+    details {
+      background: var(--bg-soft); border: 1px solid var(--border); border-radius: 14px;
+      padding: 18px 22px; cursor: pointer; transition: background .15s;
+    }
+    details[open] { background: var(--bg); }
+    summary { font-weight: 700; font-size: 16px; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+    summary::-webkit-details-marker { display: none; }
+    summary::after { content: "+"; color: var(--accent); font-size: 22px; font-weight: 400; transition: transform .2s; }
+    details[open] summary::after { transform: rotate(45deg); }
+    details p { color: var(--text-secondary); font-size: 15px; margin-top: 12px; }
+
+    /* Footer */
+    footer { border-top: 1px solid var(--border); padding: 40px 24px; }
+    .foot { max-width: var(--maxw); margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .foot .brand { font-size: 16px; }
+    .foot-links { display: flex; gap: 22px; color: var(--text-secondary); font-size: 14px; }
+    .foot-copy { color: var(--text-secondary); font-size: 13px; width: 100%; text-align: center; margin-top: 8px; }
+
+    /* reveal on scroll — only hidden once JS opts in, so no-JS / slow-JS users still see everything */
+    .js-anim .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+    .js-anim .reveal.in { opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce) { .js-anim .reveal { opacity: 1; transform: none; } .phone { transform: none; } }
+  </style>
+</head>
+<body>
+
+  <header>
+    <nav class="nav">
+      <a class="brand" href="#top"><span class="mark">⚡</span> FitDaily</a>
+      <div class="nav-links">
+        <a href="#features" class="hide-sm">Features</a>
+        <a href="#how" class="hide-sm">How it works</a>
+        <a href="#pricing" class="hide-sm">Pricing</a>
+        <a href="#beta" class="btn">Join the beta</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-glow"></div>
+      <div class="wrap hero-grid">
+        <div class="reveal">
+          <span class="eyebrow"><span class="dot"></span> Now recruiting beta testers</span>
+          <h1>One <span class="grad">personalized</span> workout. Every single day.</h1>
+          <p class="lede">FitDaily builds you a fresh workout each morning — tuned to your goals, your schedule, and the equipment you actually have.</p>
+          <div class="hero-cta">
+            <a href="#beta" class="btn lg">Get early access →</a>
+            <a href="#how" class="btn ghost lg">See how it works</a>
+          </div>
+          <div class="hero-note"><span class="check">✓</span> Free to join · No spam · Invite when we launch</div>
+        </div>
+
+        <div class="phone-wrap reveal">
+          <div class="phone">
+            <div class="phone-screen">
+              <div class="notch"></div>
+              <div class="scr-top">
+                <div class="scr-greet">Good morning, Sam 👋</div>
+                <div class="scr-date">Today's workout</div>
+              </div>
+              <div class="streak-banner">
+                <span class="fire">🔥</span>
+                <div><b>12-day streak</b><small>Keep the momentum going</small></div>
+              </div>
+              <div class="workout-card">
+                <div class="wc-tag">AI-Personalized · 30 min</div>
+                <div class="wc-title">Full-Body Strength</div>
+                <div class="wc-meta">Dumbbells · Intermediate</div>
+                <div class="ex"><span class="n">1</span><span class="name">Goblet Squat</span><span class="reps">3 × 12</span></div>
+                <div class="ex"><span class="n">2</span><span class="name">Dumbbell Bench Press</span><span class="reps">3 × 10</span></div>
+                <div class="ex"><span class="n">3</span><span class="name">Single-Arm Row</span><span class="reps">3 × 12</span></div>
+                <div class="ex"><span class="n">4</span><span class="name">Romanian Deadlift</span><span class="reps">3 × 10</span></div>
+              </div>
+              <div class="scr-btn">Start workout</div>
+              <div class="scr-tabs">
+                <div class="active"><span class="ic">🏋️</span>Today</div>
+                <div><span class="ic">📈</span>Progress</div>
+                <div><span class="ic">👤</span>Profile</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- STRIP -->
+    <div class="strip">
+      <div class="strip-inner">
+        <span>🎯 Built around your goals</span>
+        <span>⏱️ Fits your time</span>
+        <span>🏠 Any equipment</span>
+        <span>🤖 Powered by Claude AI</span>
+      </div>
+    </div>
+
+    <!-- FEATURES -->
+    <section id="features" class="features">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <div class="kicker">Why FitDaily</div>
+          <h2>No more guessing what to do at the gym</h2>
+          <p>Most fitness apps drop you into a library of 500 videos. FitDaily just tells you what to do today — and adapts as you go.</p>
+        </div>
+        <div class="feature-grid">
+          <div class="card reveal"><div class="ic">🧠</div><h3>Truly personalized</h3><p>Each workout is generated for your goal, available time, and equipment — not pulled from a one-size-fits-all template.</p></div>
+          <div class="card reveal"><div class="ic">🔥</div><h3>Streaks that stick</h3><p>One workout a day builds a habit. Track your streak and consistency so showing up becomes automatic.</p></div>
+          <div class="card reveal"><div class="ic">📈</div><h3>See your progress</h3><p>Completion history and consistency trends show how far you've come — momentum you can actually feel.</p></div>
+          <div class="card reveal"><div class="ic">🏠</div><h3>Works anywhere</h3><p>Full gym, a pair of dumbbells, or just your bodyweight at home — FitDaily adapts to what you've got.</p></div>
+          <div class="card reveal"><div class="ic">❤️</div><h3>Apple Health aware</h3><p>Reads your steps and active energy to fine-tune each day's effort around how active you've already been.</p></div>
+          <div class="card reveal"><div class="ic">⚡</div><h3>30 seconds to start</h3><p>Open the app, see today's workout, start. No scrolling, no decision fatigue, no excuses.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section id="how">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <div class="kicker">How it works</div>
+          <h2>Set it once. Show up daily.</h2>
+        </div>
+        <div class="steps">
+          <div class="step reveal"><div class="num">1</div><h3>Tell us about you</h3><p>A quick 3-step setup: your goal, how much time you have, and what equipment you can use.</p></div>
+          <div class="step reveal"><div class="num">2</div><h3>Get today's workout</h3><p>Every day, FitDaily generates a fresh, personalized session ready the moment you open the app.</p></div>
+          <div class="step reveal"><div class="num">3</div><h3>Build the habit</h3><p>Complete it, grow your streak, and watch your consistency climb. The app adapts as you improve.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PRICING -->
+    <section id="pricing" class="pricing">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <div class="kicker">Simple pricing</div>
+          <h2>Start free. Upgrade when you're hooked.</h2>
+          <p>Beta testers get Premium free during the test period.</p>
+        </div>
+        <div class="price-grid">
+          <div class="plan reveal">
+            <h3>Free</h3>
+            <div class="pp">Everything to build the habit</div>
+            <ul>
+              <li><span class="c">✓</span> 3 starter workout templates</li>
+              <li><span class="c">✓</span> Daily workout tracking</li>
+              <li><span class="c">✓</span> 7-day workout history</li>
+              <li><span class="c">✓</span> Streaks &amp; consistency</li>
+            </ul>
+          </div>
+          <div class="plan pro reveal">
+            <span class="badge">Free in beta</span>
+            <h3>Premium</h3>
+            <div class="pp">The full personalized experience</div>
+            <ul>
+              <li><span class="c">✓</span> <b>Daily AI-generated workouts</b></li>
+              <li><span class="c">✓</span> Adapts to your goals &amp; gear</li>
+              <li><span class="c">✓</span> 30-day consistency trends</li>
+              <li><span class="c">✓</span> Full workout history</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- BETA SIGNUP -->
+    <section id="beta" class="beta">
+      <div class="wrap">
+        <div class="beta-card reveal">
+          <span class="eyebrow"><span class="dot"></span> Limited beta spots</span>
+          <h2>Be one of the first to try FitDaily</h2>
+          <p>Drop your email and we'll send you an invite the moment the beta opens. Free Premium access for every tester.</p>
+          <form class="signup" id="signup-form" novalidate>
+            <input type="email" id="email" name="email" placeholder="you@email.com" required autocomplete="email" aria-label="Email address" />
+            <button type="submit" class="btn">Join the beta</button>
+          </form>
+          <div class="form-msg" id="form-msg" role="status" aria-live="polite"></div>
+          <div class="beta-meta">🔒 We'll only email you about the FitDaily beta. Unsubscribe anytime.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section id="faq">
+      <div class="wrap">
+        <div class="sec-head reveal">
+          <div class="kicker">FAQ</div>
+          <h2>Good questions</h2>
+        </div>
+        <div class="faq-list">
+          <details class="reveal"><summary>What do I get as a beta tester?</summary><p>Early access to FitDaily before public launch, free Premium for the whole beta period, and a direct line to shape the app with your feedback.</p></details>
+          <details class="reveal"><summary>What platforms is it on?</summary><p>FitDaily is built for iOS and Android (React Native + Expo). The first beta will roll out on iOS via TestFlight, with Android to follow.</p></details>
+          <details class="reveal"><summary>When does the beta start?</summary><p>We're finalizing the build and the app store listing now. Join the list and you'll be first to hear — we invite testers in small batches.</p></details>
+          <details class="reveal"><summary>Do I need gym equipment?</summary><p>Nope. FitDaily tailors each workout to whatever you have — a full gym, a few dumbbells, or nothing but your bodyweight.</p></details>
+          <details class="reveal"><summary>How much will it cost after beta?</summary><p>There's a capable free tier forever. Premium (daily AI workouts + advanced progress) will be an affordable monthly or annual subscription. Beta testers get early-supporter perks.</p></details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="foot">
+      <a class="brand" href="#top"><span class="mark">⚡</span> FitDaily</a>
+      <div class="foot-links">
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#beta">Join beta</a>
+        <a href="mailto:samuel.suchard@gmail.com">Contact</a>
+      </div>
+      <div class="foot-copy">© <span id="year"></span> FitDaily · One personalized workout a day.</div>
+    </div>
+  </footer>
+
+  <script>
+    // Year
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Scroll reveal — opt in to the hidden initial state only if we can observe + reveal.
+    if ('IntersectionObserver' in window) {
+      document.documentElement.classList.add('js-anim');
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+      }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+      const reveals = document.querySelectorAll('.reveal');
+      reveals.forEach(el => io.observe(el));
+      // Safety net: if anything hasn't revealed shortly after load, show it.
+      window.addEventListener('load', () => setTimeout(() => {
+        reveals.forEach(el => el.classList.add('in'));
+      }, 1200));
+    }
+
+    // -------- Beta signup form (writes to Supabase) --------
+    // Emails land in the public.beta_signups table. The anon/publishable key is
+    // safe to ship: RLS lets it INSERT only — it cannot read or harvest the list.
+    // Read the waitlist in the Supabase dashboard:
+    //   select * from public.beta_signups order by created_at desc;
+    const SUPABASE_URL = "https://vsltzpqpbyckgqyyuygr.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_L7gqM6yhQzpXGYJERFl7Dg_WwXEIqWR";
+
+    const form = document.getElementById('signup-form');
+    const emailInput = document.getElementById('email');
+    const msg = document.getElementById('form-msg');
+
+    function setMsg(text, kind) { msg.textContent = text; msg.className = 'form-msg ' + (kind || ''); }
+    function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); }
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = emailInput.value.trim().toLowerCase();
+      if (!validEmail(email)) { setMsg('Please enter a valid email address.', 'err'); emailInput.focus(); return; }
+
+      const btn = form.querySelector('button');
+      const original = btn.textContent;
+      btn.disabled = true; btn.textContent = 'Joining…';
+
+      // Always keep a local copy so no signup is ever lost, even on a network blip.
+      try {
+        const saved = JSON.parse(localStorage.getItem('fitdaily_beta') || '[]');
+        if (!saved.includes(email)) { saved.push(email); localStorage.setItem('fitdaily_beta', JSON.stringify(saved)); }
+      } catch (_) {}
+
+      try {
+        const res = await fetch(`${SUPABASE_URL}/rest/v1/beta_signups`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+            'Prefer': 'return=minimal'
+          },
+          body: JSON.stringify({
+            email,
+            source: 'fitdaily-landing',
+            user_agent: navigator.userAgent.slice(0, 512),
+            referrer: (document.referrer || '').slice(0, 1024) || null
+          })
+        });
+
+        if (res.status === 201 || res.status === 200) {
+          setMsg("🎉 You're on the list! We'll email your invite when the beta opens.", 'ok');
+          form.reset();
+        } else if (res.status === 409) {
+          // Duplicate email — already signed up. Treat as success, not an error.
+          setMsg("✅ You're already on the list — sit tight, your invite is coming!", 'ok');
+          form.reset();
+        } else {
+          setMsg('Hmm, that didn’t go through. Please try again in a moment.', 'err');
+        }
+      } catch (_) {
+        setMsg('Network error — please check your connection and try again.', 'err');
+      }
+
+      btn.disabled = false; btn.textContent = original;
+    });
+  </script>
+</body>
+</html>
