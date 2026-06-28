@@ -83,7 +83,7 @@ d.text((MX, hy + 2 * lh + 14), "An AI-personalized workout, every single day.",
        font=f_sub, fill=GREY)
 
 # --- Footer CTA ---
-d.text((MX, H - 78), "Join the beta  →  fitdaily1.netlify.app",
+d.text((MX, H - 78), "Join the beta  →  fitdaily.net",
        font=f_foot, fill=ORANGE_HI)
 
 out = os.path.join(os.path.dirname(__file__), "..", "assets", "og-image.png")
