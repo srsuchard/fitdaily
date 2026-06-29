@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Service — FitDaily</title>
+  <meta name="description" content="The Terms of Service for FitDaily — the AI-personalized daily workout app. Read the rules for using FitDaily, including the beta program." />
+  <link rel="canonical" href="https://fitdaily.net/terms.html" />
+  <meta name="robots" content="index, follow" />
+  <link rel="icon" href="assets/favicon.png" />
+  <style>
+    :root {
+      --accent: #FF5A3C;
+      --accent-2: #208AEF;
+      --accent-soft: #FFE9E3;
+      --text: #0B0D12;
+      --text-secondary: #5B616E;
+      --bg: #ffffff;
+      --bg-soft: #F7F8FA;
+      --bg-element: #F0F1F4;
+      --border: #E6E7EB;
+      --shadow-sm: 0 6px 20px -8px rgba(11, 13, 18, 0.16);
+      --maxw: 760px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --text: #F4F5F7;
+        --text-secondary: #A2A8B4;
+        --bg: #0A0B0D;
+        --bg-soft: #131417;
+        --bg-element: #1B1D21;
+        --border: #26282D;
+        --accent-soft: #2A1812;
+        --shadow-sm: 0 6px 20px -8px rgba(0, 0, 0, 0.5);
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Nav (matches landing page) */
+    header {
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: saturate(180%) blur(14px);
+      -webkit-backdrop-filter: saturate(180%) blur(14px);
+      background: color-mix(in srgb, var(--bg) 78%, transparent);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav {
+      max-width: 1080px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 24px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; letter-spacing: -0.02em; color: var(--text); }
+    .brand:hover { text-decoration: none; }
+    .brand .mark {
+      width: 30px; height: 30px; border-radius: 9px;
+      background: linear-gradient(135deg, var(--accent), #FF8A5C);
+      display: grid; place-items: center; color: #fff; font-size: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .nav-links a { color: var(--text-secondary); font-size: 15px; font-weight: 500; }
+    .nav-links a:hover { color: var(--text); text-decoration: none; }
+
+    /* Document */
+    .doc { max-width: var(--maxw); margin: 0 auto; padding: 64px 24px 96px; }
+    .doc-head { margin-bottom: 40px; padding-bottom: 28px; border-bottom: 1px solid var(--border); }
+    .eyebrow { color: var(--accent); font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; }
+    h1 { font-size: clamp(30px, 5vw, 42px); letter-spacing: -0.03em; font-weight: 800; margin: 10px 0 14px; line-height: 1.1; }
+    .updated { color: var(--text-secondary); font-size: 14px; }
+
+    .callout {
+      background: var(--bg-soft); border: 1px solid var(--border); border-left: 3px solid var(--accent);
+      border-radius: 12px; padding: 18px 20px; margin: 28px 0; font-size: 15px; color: var(--text-secondary);
+    }
+    .callout strong { color: var(--text); }
+
+    .doc h2 { font-size: 22px; letter-spacing: -0.02em; font-weight: 800; margin: 44px 0 12px; line-height: 1.25; }
+    .doc h2 .num { color: var(--accent); font-variant-numeric: tabular-nums; margin-right: 8px; }
+    .doc h3 { font-size: 17px; font-weight: 700; margin: 24px 0 8px; }
+    .doc p { color: var(--text); font-size: 16px; margin: 12px 0; }
+    .doc ul { margin: 12px 0 12px 22px; }
+    .doc li { font-size: 16px; margin: 7px 0; }
+    .doc strong { font-weight: 700; }
+
+    /* Table of contents */
+    .toc { background: var(--bg-soft); border: 1px solid var(--border); border-radius: 14px; padding: 22px 26px; margin: 32px 0; }
+    .toc-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-secondary); margin-bottom: 12px; }
+    .toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 32px; }
+    @media (max-width: 560px) { .toc ol { columns: 1; } }
+    .toc li { margin: 5px 0; font-size: 14px; }
+    .toc a { color: var(--text-secondary); }
+    .toc a:hover { color: var(--accent); }
+
+    /* Footer (matches landing page) */
+    footer { border-top: 1px solid var(--border); padding: 40px 24px; }
+    .foot { max-width: 1080px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .foot .brand { font-size: 16px; }
+    .foot-links { display: flex; gap: 22px; }
+    .foot-links a { color: var(--text-secondary); font-size: 14px; }
+    .foot-links a:hover { color: var(--text); text-decoration: none; }
+    .foot-copy { color: var(--text-secondary); font-size: 13px; width: 100%; text-align: center; margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <nav class="nav">
+      <a class="brand" href="/"><span class="mark">⚡</span> FitDaily</a>
+      <div class="nav-links">
+        <a href="/">← Back to home</a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="doc">
+    <div class="doc-head">
+      <div class="eyebrow">Legal</div>
+      <h1>Terms of Service</h1>
+      <p class="updated">Last updated: June 28, 2026 · Effective date: June 28, 2026</p>
+    </div>
+
+    <div class="callout">
+      <strong>Not medical advice.</strong> FitDaily provides general fitness and exercise information for educational
+      purposes only. It is not medical advice and is not a substitute for guidance from a qualified physician or
+      healthcare professional. Consult your doctor before starting any exercise program, and stop and seek care if you
+      feel pain, dizziness, or discomfort.
+    </div>
+
+    <p>
+      These Terms of Service (the “Terms”) are a binding agreement between you (“you” or “your”) and FitDaily
+      (“FitDaily,” “we,” “us,” or “our”) governing your access to and use of the FitDaily mobile application, the
+      <a href="https://fitdaily.net/">fitdaily.net</a> website, and any related services, content, and features
+      (together, the “Service”). By creating an account, joining the beta, or otherwise using the Service, you agree to
+      these Terms. If you do not agree, do not use the Service.
+    </p>
+
+    <div class="toc">
+      <div class="toc-title">Contents</div>
+      <ol>
+        <li><a href="#eligibility">Eligibility</a></li>
+        <li><a href="#beta">Beta program</a></li>
+        <li><a href="#accounts">Your account</a></li>
+        <li><a href="#health">Health &amp; safety</a></li>
+        <li><a href="#ai">AI-generated workouts</a></li>
+        <li><a href="#license">License to use</a></li>
+        <li><a href="#conduct">Acceptable use</a></li>
+        <li><a href="#subscriptions">Subscriptions &amp; billing</a></li>
+        <li><a href="#ip">Intellectual property</a></li>
+        <li><a href="#thirdparty">Third-party services</a></li>
+        <li><a href="#privacy">Privacy</a></li>
+        <li><a href="#termination">Termination</a></li>
+        <li><a href="#disclaimers">Disclaimers</a></li>
+        <li><a href="#liability">Limitation of liability</a></li>
+        <li><a href="#indemnity">Indemnification</a></li>
+        <li><a href="#changes">Changes to these Terms</a></li>
+        <li><a href="#law">Governing law</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ol>
+    </div>
+
+    <h2 id="eligibility"><span class="num">1.</span>Eligibility</h2>
+    <p>
+      You must be at least 18 years old (or the age of majority in your jurisdiction) to use the Service. By using
+      FitDaily, you represent that you meet this requirement, that you are physically able to participate in exercise
+      activity, and that the information you provide to us is accurate.
+    </p>
+
+    <h2 id="beta"><span class="num">2.</span>Beta Program</h2>
+    <p>
+      FitDaily is currently offered as a pre-release “beta” product. The Service is provided for testing and evaluation
+      and may be incomplete, contain bugs, change without notice, lose data, or become unavailable. Features described
+      on our website or in the app may change or be removed before general release. We may invite, limit, or revoke beta
+      access at our discretion. Any feedback you provide about the Service may be used by us without restriction or
+      obligation to you.
+    </p>
+
+    <h2 id="accounts"><span class="num">3.</span>Your Account</h2>
+    <p>
+      You are responsible for the activity that occurs under your account and for keeping your login credentials secure.
+      Notify us promptly at <a href="mailto:samuel.suchard@gmail.com">samuel.suchard@gmail.com</a> if you suspect
+      unauthorized use. You agree to provide accurate account and profile information (such as your fitness goal,
+      available time, and equipment) and to keep it up to date so the Service can function as intended.
+    </p>
+
+    <h2 id="health"><span class="num">4.</span>Health &amp; Safety</h2>
+    <p>
+      FitDaily is a fitness tool, not a healthcare provider. Exercise carries inherent risks, including the risk of
+      injury. By using the Service, you acknowledge and agree that:
+    </p>
+    <ul>
+      <li>You participate in any workout, exercise, or activity suggested by FitDaily voluntarily and at your own risk.</li>
+      <li>You should consult a physician before beginning any exercise program, especially if you have a medical condition, are pregnant, are injured, or have not exercised recently.</li>
+      <li>You will use proper form, appropriate weight and equipment, and stop immediately if you experience pain, dizziness, shortness of breath, or any other warning sign, and seek medical attention as needed.</li>
+      <li>FitDaily does not diagnose, treat, cure, or prevent any disease or health condition.</li>
+    </ul>
+
+    <h2 id="ai"><span class="num">5.</span>AI-Generated Workouts</h2>
+    <p>
+      FitDaily uses artificial intelligence to generate personalized workout suggestions based on the information you
+      provide. AI output can be inaccurate, incomplete, or unsuitable for your individual circumstances. Workout
+      suggestions are general recommendations, not individualized medical, physical-therapy, or professional training
+      advice. You are responsible for using your own judgment, adjusting any workout to your ability, and deciding
+      whether a given exercise is safe and appropriate for you.
+    </p>
+
+    <h2 id="license"><span class="num">6.</span>License to Use the Service</h2>
+    <p>
+      Subject to these Terms, we grant you a limited, personal, non-exclusive, non-transferable, revocable license to
+      use the Service for your own non-commercial use. This license does not allow you to resell, redistribute, or
+      commercially exploit the Service or its content.
+    </p>
+
+    <h2 id="conduct"><span class="num">7.</span>Acceptable Use</h2>
+    <p>You agree not to:</p>
+    <ul>
+      <li>Use the Service in any way that violates applicable law or these Terms.</li>
+      <li>Reverse engineer, decompile, copy, modify, or create derivative works of the Service, except as permitted by law.</li>
+      <li>Access the Service through automated means (scraping, bots), interfere with its operation, or attempt to gain unauthorized access to our systems or data.</li>
+      <li>Upload or transmit malicious code, or use the Service to harass, abuse, or harm others.</li>
+      <li>Misrepresent your identity or impersonate any person or entity.</li>
+    </ul>
+
+    <h2 id="subscriptions"><span class="num">8.</span>Subscriptions &amp; Billing</h2>
+    <p>
+      FitDaily offers a free tier and a paid “Premium” tier. During the beta period, Premium features may be provided to
+      testers at no charge; we may end this at any time with reasonable notice. When paid subscriptions become available,
+      the following apply:
+    </p>
+    <ul>
+      <li>Subscriptions are billed in advance on a recurring basis (e.g., monthly or annually) through the applicable app store (such as the Apple App Store or Google Play) and are subject to that store’s terms.</li>
+      <li>Subscriptions renew automatically unless cancelled at least 24 hours before the end of the current period. You can manage or cancel a subscription in your app store account settings.</li>
+      <li>Prices may change; we will give notice of changes as required by law, and changes will not affect the period you have already paid for.</li>
+      <li>Except where required by law or store policy, payments are non-refundable. Refund requests are handled by the app store through which you purchased.</li>
+    </ul>
+
+    <h2 id="ip"><span class="num">9.</span>Intellectual Property</h2>
+    <p>
+      The Service, including its software, design, text, graphics, logos, and the “FitDaily” name and branding, is owned
+      by us or our licensors and is protected by intellectual property laws. Except for the license granted above, no
+      rights are transferred to you. Workout content generated for you may be used for your personal fitness purposes.
+    </p>
+
+    <h2 id="thirdparty"><span class="num">10.</span>Third-Party Services</h2>
+    <p>
+      The Service relies on third-party providers — including app-store platforms, cloud and database providers (such as
+      Supabase), AI model providers (such as Anthropic’s Claude), and, where you enable it, health-data platforms (such
+      as Apple Health). Your use of those integrations may be subject to the third party’s own terms and privacy
+      policies. We are not responsible for third-party services and do not control them.
+    </p>
+
+    <h2 id="privacy"><span class="num">11.</span>Privacy</h2>
+    <p>
+      Your use of the Service is also governed by our <a href="/privacy-policy.html">Privacy Policy</a>, which explains what
+      information we collect and how we use it. If you enable health-data features, FitDaily reads only the data you
+      authorize (such as steps and active energy) to tailor your workouts, and does not sell your health data.
+    </p>
+
+    <h2 id="termination"><span class="num">12.</span>Termination</h2>
+    <p>
+      You may stop using the Service and delete your account at any time. We may suspend or terminate your access if you
+      violate these Terms, if we discontinue the Service, or as otherwise needed to protect the Service or other users.
+      Provisions that by their nature should survive termination (including intellectual property, disclaimers,
+      limitation of liability, and governing law) will survive.
+    </p>
+
+    <h2 id="disclaimers"><span class="num">13.</span>Disclaimers</h2>
+    <p>
+      THE SERVICE IS PROVIDED “AS IS” AND “AS AVAILABLE,” WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS, IMPLIED, OR
+      STATUTORY, INCLUDING ANY IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, ACCURACY, AND
+      NON-INFRINGEMENT. WE DO NOT WARRANT THAT THE SERVICE WILL BE UNINTERRUPTED, SECURE, ERROR-FREE, OR THAT ANY WORKOUT
+      OR RESULT WILL BE ACHIEVED. Some jurisdictions do not allow the exclusion of certain warranties, so some of the
+      above may not apply to you.
+    </p>
+
+    <h2 id="liability"><span class="num">14.</span>Limitation of Liability</h2>
+    <p>
+      TO THE MAXIMUM EXTENT PERMITTED BY LAW, FITDAILY AND ITS OWNERS, EMPLOYEES, AND SUPPLIERS WILL NOT BE LIABLE FOR
+      ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR FOR ANY PERSONAL INJURY, LOSS OF DATA,
+      LOSS OF PROFITS, OR LOSS OF GOODWILL, ARISING OUT OF OR RELATED TO YOUR USE OF (OR INABILITY TO USE) THE SERVICE.
+      OUR TOTAL LIABILITY FOR ANY CLAIM RELATING TO THE SERVICE WILL NOT EXCEED THE GREATER OF (A) THE AMOUNT YOU PAID US
+      FOR THE SERVICE IN THE 12 MONTHS BEFORE THE CLAIM, OR (B) USD $50. Some jurisdictions do not allow certain
+      limitations, so some of the above may not apply to you.
+    </p>
+
+    <h2 id="indemnity"><span class="num">15.</span>Indemnification</h2>
+    <p>
+      You agree to indemnify and hold harmless FitDaily and its owners from any claims, damages, liabilities, and
+      expenses (including reasonable legal fees) arising from your misuse of the Service or your violation of these Terms
+      or applicable law.
+    </p>
+
+    <h2 id="changes"><span class="num">16.</span>Changes to These Terms</h2>
+    <p>
+      We may update these Terms from time to time. When we make material changes, we will update the “Last updated” date
+      above and, where appropriate, notify you in the app or by email. Your continued use of the Service after changes
+      take effect means you accept the revised Terms.
+    </p>
+
+    <h2 id="law"><span class="num">17.</span>Governing Law</h2>
+    <p>
+      These Terms are governed by the laws of the State of California, USA, without regard to its conflict-of-laws rules,
+      and you and FitDaily agree to the exclusive jurisdiction of the state and federal courts located there, except
+      where applicable law gives you the right to bring a claim in your local courts. Nothing in these Terms limits any
+      consumer-protection rights you may have under the laws of your place of residence.
+    </p>
+
+    <h2 id="contact"><span class="num">18.</span>Contact</h2>
+    <p>
+      Questions about these Terms? Reach us at
+      <a href="mailto:samuel.suchard@gmail.com">samuel.suchard@gmail.com</a>.
+    </p>
+  </main>
+
+  <footer>
+    <div class="foot">
+      <a class="brand" href="/"><span class="mark">⚡</span> FitDaily</a>
+      <div class="foot-links">
+        <a href="/">Home</a>
+        <a href="/terms.html">Terms</a>
+        <a href="/privacy-policy.html">Privacy</a>
+        <a href="mailto:samuel.suchard@gmail.com">Contact</a>
+      </div>
+      <div class="foot-copy">© <span id="year"></span> FitDaily · One personalized workout a day.</div>
+    </div>
+  </footer>
+
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
