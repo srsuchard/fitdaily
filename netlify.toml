@@ -1,0 +1,16 @@
+# Netlify config for the FitDaily beta landing page.
+# The site is the static marketing page in /marketing — no build step.
+[build]
+  publish = "marketing"
+  command = ""
+
+# Cache the immutable icon assets; always revalidate the HTML so copy edits ship fast.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
