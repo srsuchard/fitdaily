@@ -30,11 +30,21 @@ function Row({ label, value }: { label: string; value: string }) {
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { userEmail, isPremium, entitlement, onboarding, demoMode, session, signOut, setEntitlement } =
-    useAuth();
+  const {
+    userEmail,
+    isPremium,
+    entitlement,
+    onboarding,
+    demoMode,
+    session,
+    signOut,
+    deleteAccount,
+    setEntitlement,
+  } = useAuth();
   const [restoring, setRestoring] = useState(false);
   const [reminderOn, setReminderOn] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   // A stable, shareable referral code derived from the user id (no schema
   // change). Full signup attribution via deep links is a future step.
@@ -69,6 +79,34 @@ export default function ProfileScreen() {
       await disableDailyReminder();
       setReminderOn(false);
     }
+  };
+
+  const confirmDelete = () => {
+    Alert.alert(
+      'Delete account?',
+      'This permanently deletes your account and all your data — workouts, streaks, and progress. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            setDeleting(true);
+            try {
+              await deleteAccount();
+              // Auth state is cleared; send the user back to the entry screen.
+              router.replace('/sign-in');
+            } catch (e) {
+              setDeleting(false);
+              Alert.alert(
+                'Could not delete account',
+                (e as Error)?.message ?? 'Something went wrong. Please try again.',
+              );
+            }
+          },
+        },
+      ],
+    );
   };
 
   const onRestore = async () => {
@@ -167,6 +205,13 @@ export default function ProfileScreen() {
           </ThemedView>
 
           <PrimaryButton variant="secondary" title="Sign out" onPress={signOut} />
+
+          <PrimaryButton
+            variant="danger"
+            title="Delete account"
+            loading={deleting}
+            onPress={confirmDelete}
+          />
 
           <ThemedText type="small" themeColor="textSecondary" style={styles.foot}>
             Entitlement: {entitlement}

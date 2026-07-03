@@ -89,7 +89,9 @@ Based on the app's actual data flows (verified in code, 2026-07-02):
 - Is all of the user data collected by your app encrypted in transit? — **Yes**
   (Supabase / HTTPS / TLS)
 - Do you provide a way for users to request that their data is deleted? — **Yes**
-  ⚠️ See "Action needed" below — you must expose a deletion channel first.
+  In-app: Profile → **Delete account** permanently deletes the account and all
+  server data (backed by the `delete-account` edge function, which cascades every
+  table off `auth.users`).
 
 ## Data types collected
 
@@ -120,14 +122,12 @@ Location · Financial info · Contacts · Photos/videos · Audio · Messages ·
 Calendar · Web browsing history · Installed apps · Device or other IDs (no
 analytics/ads SDK) · Purchase history (billing off).
 
-## ⚠️ Action needed before you can truthfully answer "Yes" to deletion
+## Account deletion — implemented
 
-The app has **no in-app "delete account"** flow today. Play requires either an
-in-app deletion path or a documented request channel. Cheapest fix: add a line to
-the privacy policy (fitdaily.net/privacy-policy.html) — "To delete your account and
-data, email support@fitdaily.net" — and provide that URL as the deletion request
-URL in the form. Better long-term: add an in-app "Delete account" button. Until
-one exists, answer the deletion question honestly.
+Profile → **Delete account** (destructive, double-confirmed) calls the
+`delete-account` Supabase edge function, which deletes the `auth.users` row with
+the service role; all app tables cascade from it, so every trace of the user is
+removed. Local device data is cleared too. No external request channel needed.
 
 ---
 

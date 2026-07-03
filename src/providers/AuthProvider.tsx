@@ -39,6 +39,8 @@ interface AuthContextValue {
   signUpWithEmail: (email: string, password: string) => Promise<void>;
   signInDemo: () => Promise<void>;
   signOut: () => Promise<void>;
+  /** Permanently deletes the account + all server data, then clears local state. */
+  deleteAccount: () => Promise<void>;
 
   completeOnboarding: (p: OnboardingProfile) => Promise<void>;
   refreshEntitlement: () => Promise<void>;
@@ -118,6 +120,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setEntitlementState('free');
   }, []);
 
+  const deleteAccount = useCallback(async () => {
+    // Real account: ask the server to delete the auth user (cascades all data).
+    // In demo mode there is no backend, so we just clear local state below.
+    if (supabase) {
+      const { error } = await supabase.functions.invoke('delete-account', { method: 'POST' });
+      if (error) throw error;
+      await supabase.auth.signOut().catch(() => {}); // token is now invalid; ignore.
+    }
+    // Wipe every local trace (onboarding answers, demo flag, cached progress, session).
+    await AsyncStorage.clear();
+    setDemoUserEmail(null);
+    setSession(null);
+    setOnboarding(null);
+    setEntitlementState('free');
+  }, []);
+
   const completeOnboarding = useCallback(async (p: OnboardingProfile) => {
     await AsyncStorage.setItem(ONBOARDING_KEY, JSON.stringify(p));
     setOnboarding(p);
@@ -144,6 +162,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signUpWithEmail,
       signInDemo,
       signOut,
+      deleteAccount,
       completeOnboarding,
       refreshEntitlement,
       setEntitlement: setEntitlementState,
@@ -159,6 +178,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signUpWithEmail,
     signInDemo,
     signOut,
+    deleteAccount,
     completeOnboarding,
     refreshEntitlement,
   ]);
