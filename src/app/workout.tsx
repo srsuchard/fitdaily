@@ -61,9 +61,21 @@ export default function WorkoutPlayer() {
   const [paused, setPaused] = useState(false);
   const [saving, setSaving] = useState(false);
   const [reward, setReward] = useState<CompletionResult | null>(null);
-  const startRef = useRef(Date.now());
+  const [segIndex, setSegIndex] = useState(-1);
+  const startRef = useRef<number | null>(null);
 
   const current = segments[index];
+
+  // Reset the timer whenever the segment changes — handled during render (React's
+  // "adjust state when a value changes" pattern) instead of in an effect.
+  if (segIndex !== index) {
+    setSegIndex(index);
+    const seg = segments[index];
+    if (seg?.kind === 'rest') setRemaining(seg.seconds);
+    else if (seg?.kind === 'work' && seg.durationSeconds) setRemaining(seg.durationSeconds);
+    else setRemaining(null);
+    setPaused(false);
+  }
 
   const advance = useCallback(() => {
     tick();
@@ -71,23 +83,18 @@ export default function WorkoutPlayer() {
     else setIndex(index + 1);
   }, [index, segments.length]);
 
-  // Reset the timer whenever the segment changes (rest + timed work auto-count).
+  // Capture the workout start time once, after mount (no impure Date.now() in render).
   useEffect(() => {
-    const seg = segments[index];
-    if (seg?.kind === 'rest') setRemaining(seg.seconds);
-    else if (seg?.kind === 'work' && seg.durationSeconds) setRemaining(seg.durationSeconds);
-    else setRemaining(null);
-    setPaused(false);
-  }, [index, segments]);
+    startRef.current = Date.now();
+  }, []);
 
   // Countdown loop for timed segments.
   useEffect(() => {
-    if (remaining === null || paused || phase !== 'active') return;
-    if (remaining <= 0) {
-      advance();
-      return;
-    }
-    const t = setTimeout(() => setRemaining((r) => (r === null ? null : r - 1)), 1000);
+    if (remaining === null || paused || phase !== 'active' || remaining <= 0) return;
+    const t = setTimeout(() => {
+      if (remaining <= 1) advance();
+      else setRemaining((r) => (r === null ? null : r - 1));
+    }, 1000);
     return () => clearTimeout(t);
   }, [remaining, paused, phase, advance]);
 
@@ -102,7 +109,7 @@ export default function WorkoutPlayer() {
       setSaving(true);
       try {
         await setLastDifficulty(fb);
-        const minutes = Math.max(1, Math.round((Date.now() - startRef.current) / 60000));
+        const minutes = Math.max(1, Math.round((Date.now() - (startRef.current ?? Date.now())) / 60000));
         const result = await recordCompletion(activePlan.title, minutes);
         if (Platform.OS !== 'web') {
           Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});

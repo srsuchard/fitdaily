@@ -29,6 +29,7 @@ export async function initPurchases(appUserId?: string): Promise<void> {
   if (!apiKey) return; // demo mode
 
   try {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports -- lazy-load the native module only when configured
     Purchases = require('react-native-purchases').default as PurchasesModule;
     await Purchases.configure({ apiKey, appUserID: appUserId ?? null });
     configured = true;
