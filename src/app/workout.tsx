@@ -248,7 +248,7 @@ const styles = StyleSheet.create({
   progressFill: { height: 8, borderRadius: 4 },
   body: { flex: 1, justifyContent: 'center', alignItems: 'stretch', gap: Spacing.three },
   center: { textAlign: 'center' },
-  timer: { fontSize: 72, fontWeight: '800', textAlign: 'center' },
+  timer: { fontSize: 72, lineHeight: 84, fontWeight: '800', textAlign: 'center', includeFontPadding: false },
   row: { flexDirection: 'row', gap: Spacing.three },
   flex: { flex: 1 },
   feedbackPrompt: { marginTop: Spacing.four },
