@@ -11,7 +11,7 @@ import {
 } from 'react';
 
 import { isSupabaseConfigured } from '@/lib/env';
-import { getEntitlement, initPurchases } from '@/lib/revenuecat';
+import { getEntitlement, initPurchases, syncPurchaseUser } from '@/lib/revenuecat';
 import { supabase } from '@/lib/supabase';
 import type { Entitlement, OnboardingProfile } from '@/types';
 
@@ -83,9 +83,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (mounted) setReady(true);
     })();
 
-    const sub = supabase?.auth.onAuthStateChange((_event, s) => {
+    const sub = supabase?.auth.onAuthStateChange(async (_event, s) => {
       setSession(s);
-      getEntitlement().then(setEntitlementState);
+      // Re-identify RevenueCat with the (possibly changed) user before reading
+      // the entitlement, so it's never read against a stale/unconfigured SDK.
+      await syncPurchaseUser(s?.user.id);
+      setEntitlementState(await getEntitlement());
     });
 
     return () => {

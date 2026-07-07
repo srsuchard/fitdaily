@@ -17,6 +17,9 @@ export type PurchasePackage = import('react-native-purchases').PurchasesPackage;
 
 let Purchases: PurchasesModule | null = null;
 let configured = false;
+// In-flight guard so concurrent init calls (cold start fires several) dedupe
+// instead of configuring the SDK more than once.
+let configuring: Promise<void> | null = null;
 
 export function isPurchasesReady(): boolean {
   return configured && Purchases !== null;
@@ -25,19 +28,46 @@ export function isPurchasesReady(): boolean {
 /** Configure the SDK once at app start. No-op when no key / native module. */
 export async function initPurchases(appUserId?: string): Promise<void> {
   if (configured) return;
+  if (configuring) return configuring;
   const apiKey = Platform.OS === 'ios' ? env.revenueCatIosKey : env.revenueCatAndroidKey;
   if (!apiKey) return; // demo mode
 
+  configuring = (async () => {
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-require-imports -- lazy-load the native module only when configured
+      Purchases = require('react-native-purchases').default as PurchasesModule;
+      await Purchases.configure({ apiKey, appUserID: appUserId ?? null });
+      configured = true;
+    } catch (e) {
+      // Native module missing (Expo Go) or config error — stay in demo mode.
+      Purchases = null;
+      configured = false;
+      console.warn('[revenuecat] unavailable, continuing without IAP:', (e as Error).message);
+    } finally {
+      configuring = null;
+    }
+  })();
+  return configuring;
+}
+
+/**
+ * Ensure RevenueCat is configured AND identified as the given user. Call on
+ * every auth change: configures on first run, re-identifies (logIn) when the
+ * signed-in user changes, and logs back out to an anonymous id on sign-out.
+ * This keeps entitlement reads tied to the correct RevenueCat customer.
+ */
+export async function syncPurchaseUser(appUserId?: string): Promise<void> {
+  if (!configured) {
+    await initPurchases(appUserId);
+    return;
+  }
+  if (!Purchases) return;
   try {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports -- lazy-load the native module only when configured
-    Purchases = require('react-native-purchases').default as PurchasesModule;
-    await Purchases.configure({ apiKey, appUserID: appUserId ?? null });
-    configured = true;
+    if (appUserId) await Purchases.logIn(appUserId);
+    else await Purchases.logOut();
   } catch (e) {
-    // Native module missing (Expo Go) or config error — stay in demo mode.
-    Purchases = null;
-    configured = false;
-    console.warn('[revenuecat] unavailable, continuing without IAP:', (e as Error).message);
+    // logOut throws when already anonymous — safe to ignore.
+    console.warn('[revenuecat] user sync skipped:', (e as Error).message);
   }
 }
 
