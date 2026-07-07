@@ -49,7 +49,7 @@ export default function ProfileScreen() {
   // A stable, shareable referral code derived from the user id (no schema
   // change). Full signup attribution via deep links is a future step.
   const referralCode = (session?.user.id ?? 'demo-user').replace(/-/g, '').slice(0, 6).toUpperCase();
-  const inviteLink = `https://fitdaily.app/invite/${referralCode}`;
+  const inviteLink = `https://fitdaily.net/?ref=${referralCode}`;
   const inviteMessage = 'Join me on FitDaily — one personalized workout a day. Get a free month of Premium 💪';
 
   const copyInvite = async () => {

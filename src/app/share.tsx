@@ -12,7 +12,7 @@ import { Spacing } from '@/constants/theme';
 import { shareImage, shareText } from '@/lib/share';
 import { useProgress } from '@/providers/ProgressProvider';
 
-const INVITE = 'https://fitdaily.app';
+const INVITE = 'https://fitdaily.net';
 
 export default function ShareScreen() {
   const router = useRouter();
