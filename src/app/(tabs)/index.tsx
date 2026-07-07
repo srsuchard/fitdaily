@@ -15,6 +15,7 @@ import { WorkoutCard } from '@/components/workout-card';
 import { Spacing } from '@/constants/theme';
 import { getLastDifficulty } from '@/lib/feedback';
 import { FREE_TEMPLATES, generateDailyWorkout } from '@/lib/workoutEngine';
+import { saveDailyWorkout } from '@/lib/workouts';
 import { useAuth } from '@/providers/AuthProvider';
 import { useProgress } from '@/providers/ProgressProvider';
 import { useWorkoutSession } from '@/providers/WorkoutSessionProvider';
@@ -29,7 +30,7 @@ function greeting(): string {
 
 export default function TodayScreen() {
   const router = useRouter();
-  const { onboarding, isPremium, accessToken } = useAuth();
+  const { onboarding, isPremium, accessToken, session } = useAuth();
   const { completedToday, streak, streakProtected, level, unlockedCount, achievements } =
     useProgress();
   const { setActivePlan } = useWorkoutSession();
@@ -64,6 +65,14 @@ export default function TodayScreen() {
       generateDailyWorkout(onboarding, accessToken, { feedback }).then(setPlan).catch(() => {});
     }
   }, [isPremium, onboarding, accessToken, feedback]);
+
+  // Record the plan assigned for today so streaks/analytics have server-side
+  // history. Upsert is idempotent per (user, day); a later regenerate overwrites
+  // the free template with the AI plan. Non-critical — failures are swallowed.
+  useEffect(() => {
+    const userId = session?.user.id;
+    if (userId) saveDailyWorkout(userId, plan).catch(() => {});
+  }, [session?.user.id, plan]);
 
   const startWorkout = useCallback(() => {
     setActivePlan(plan);
