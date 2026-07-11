@@ -18,6 +18,9 @@ export const supabase: SupabaseClient<Database> | null = isSupabaseConfigured
         persistSession: true,
         // React Native has no URL-based session detection.
         detectSessionInUrl: false,
+        // PKCE so the OAuth (Google) flow returns a `code` we exchange for a
+        // session via exchangeCodeForSession — the verifier is kept in storage.
+        flowType: 'pkce',
       },
     })
   : null;
