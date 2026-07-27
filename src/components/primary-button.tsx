@@ -4,7 +4,7 @@ import { Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { ThemedText } from './themed-text';
 
-type Variant = 'primary' | 'secondary';
+type Variant = 'primary' | 'secondary' | 'danger';
 
 type Props = PressableProps & {
   title: string;
@@ -16,7 +16,7 @@ export function PrimaryButton({ title, variant = 'primary', loading, disabled, s
   const theme = useTheme();
   const isPrimary = variant === 'primary';
   const bg = isPrimary ? theme.accent : theme.backgroundElement;
-  const fg = isPrimary ? theme.accentText : theme.text;
+  const fg = isPrimary ? theme.accentText : variant === 'danger' ? theme.danger : theme.text;
   const isDisabled = disabled || loading;
 
   return (

@@ -1,5 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { Session } from '@supabase/supabase-js';
+import * as Linking from 'expo-linking';
+import * as WebBrowser from 'expo-web-browser';
 import {
   createContext,
   useCallback,
@@ -11,7 +13,7 @@ import {
 } from 'react';
 
 import { isSupabaseConfigured } from '@/lib/env';
-import { getEntitlement, initPurchases } from '@/lib/revenuecat';
+import { getEntitlement, initPurchases, syncPurchaseUser } from '@/lib/revenuecat';
 import { supabase } from '@/lib/supabase';
 import type { Entitlement, OnboardingProfile } from '@/types';
 
@@ -37,8 +39,11 @@ interface AuthContextValue {
 
   signInWithEmail: (email: string, password: string) => Promise<void>;
   signUpWithEmail: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signInDemo: () => Promise<void>;
   signOut: () => Promise<void>;
+  /** Permanently deletes the account + all server data, then clears local state. */
+  deleteAccount: () => Promise<void>;
 
   completeOnboarding: (p: OnboardingProfile) => Promise<void>;
   refreshEntitlement: () => Promise<void>;
@@ -81,9 +86,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (mounted) setReady(true);
     })();
 
-    const sub = supabase?.auth.onAuthStateChange((_event, s) => {
+    const sub = supabase?.auth.onAuthStateChange(async (_event, s) => {
       setSession(s);
-      getEntitlement().then(setEntitlementState);
+      // Re-identify RevenueCat with the (possibly changed) user before reading
+      // the entitlement, so it's never read against a stale/unconfigured SDK.
+      await syncPurchaseUser(s?.user.id);
+      setEntitlementState(await getEntitlement());
     });
 
     return () => {
@@ -104,6 +112,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (error) throw error;
   }, []);
 
+  // Google OAuth via the system browser (Custom Tab / SFAuthenticationSession).
+  // Supabase holds all Google client config, so no native SDK or keystore SHA-1
+  // is needed. Requires the Google provider enabled in Supabase and this app's
+  // redirect (fitdaily://auth-callback) on the Supabase allowlist; otherwise
+  // signInWithOAuth returns a clear "provider is not enabled" error we surface.
+  const signInWithGoogle = useCallback(async () => {
+    if (!supabase) throw new Error('Supabase not configured');
+    const redirectTo = Linking.createURL('auth-callback');
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo, skipBrowserRedirect: true },
+    });
+    if (error) throw error;
+    if (!data?.url) throw new Error('Could not start Google sign-in.');
+
+    const result = await WebBrowser.openAuthSessionAsync(data.url, redirectTo);
+    // User backed out of the browser — treat as a silent cancel, not an error.
+    if (result.type !== 'success' || !result.url) return;
+
+    const { queryParams } = Linking.parse(result.url);
+    const errDesc = queryParams?.error_description;
+    if (typeof errDesc === 'string') throw new Error(errDesc);
+    const code = queryParams?.code;
+    if (typeof code !== 'string') throw new Error('No authorization code returned.');
+
+    // Exchange the PKCE code for a session; onAuthStateChange picks it up.
+    const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+    if (exchangeError) throw exchangeError;
+  }, []);
+
   const signInDemo = useCallback(async () => {
     const email = 'demo@fitdaily.app';
     await AsyncStorage.setItem(DEMO_KEY, email);
@@ -115,6 +154,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await AsyncStorage.multiRemove([DEMO_KEY]);
     setDemoUserEmail(null);
     setSession(null);
+    setEntitlementState('free');
+  }, []);
+
+  const deleteAccount = useCallback(async () => {
+    // Real account: ask the server to delete the auth user (cascades all data).
+    // In demo mode there is no backend, so we just clear local state below.
+    if (supabase) {
+      const { error } = await supabase.functions.invoke('delete-account', { method: 'POST' });
+      if (error) throw error;
+      await supabase.auth.signOut().catch(() => {}); // token is now invalid; ignore.
+    }
+    // Wipe every local trace (onboarding answers, demo flag, cached progress, session).
+    await AsyncStorage.clear();
+    setDemoUserEmail(null);
+    setSession(null);
+    setOnboarding(null);
     setEntitlementState('free');
   }, []);
 
@@ -142,8 +197,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hasOnboarded: onboarding !== null,
       signInWithEmail,
       signUpWithEmail,
+      signInWithGoogle,
       signInDemo,
       signOut,
+      deleteAccount,
       completeOnboarding,
       refreshEntitlement,
       setEntitlement: setEntitlementState,
@@ -157,8 +214,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onboarding,
     signInWithEmail,
     signUpWithEmail,
+    signInWithGoogle,
     signInDemo,
     signOut,
+    deleteAccount,
     completeOnboarding,
     refreshEntitlement,
   ]);

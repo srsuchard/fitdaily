@@ -17,17 +17,17 @@ export default function TabLayout() {
         labelStyle={{ selected: { color: colors.accent } }}>
         <NativeTabs.Trigger name="index">
           <NativeTabs.Trigger.Label>Today</NativeTabs.Trigger.Label>
-          <NativeTabs.Trigger.Icon sf="figure.run" />
+          <NativeTabs.Trigger.Icon sf="figure.run" md="directions_run" />
         </NativeTabs.Trigger>
 
         <NativeTabs.Trigger name="progress">
           <NativeTabs.Trigger.Label>Progress</NativeTabs.Trigger.Label>
-          <NativeTabs.Trigger.Icon sf="chart.line.uptrend.xyaxis" />
+          <NativeTabs.Trigger.Icon sf="chart.line.uptrend.xyaxis" md="show_chart" />
         </NativeTabs.Trigger>
 
         <NativeTabs.Trigger name="profile">
           <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
-          <NativeTabs.Trigger.Icon sf="person.crop.circle" />
+          <NativeTabs.Trigger.Icon sf="person.crop.circle" md="account_circle" />
         </NativeTabs.Trigger>
       </NativeTabs>
     </>

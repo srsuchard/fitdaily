@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Alert, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { PrimaryButton } from '@/components/primary-button';
@@ -91,11 +91,17 @@ export default function PaywallScreen() {
             {usingRevenueCat
               ? packages.map((p) => {
                   const isSel = p.identifier === selected;
+                  const isAnnual = p.packageType === 'ANNUAL';
                   return (
                     <Pressable
                       key={p.identifier}
                       onPress={() => setSelected(p.identifier)}
                       style={[styles.tier, { borderColor: isSel ? theme.accent : theme.border }]}>
+                      {isAnnual && (
+                        <ThemedText type="small" style={{ color: theme.accent }}>
+                          BEST VALUE
+                        </ThemedText>
+                      )}
                       <ThemedText type="smallBold">{p.product.title}</ThemedText>
                       <ThemedText type="subtitle">{p.product.priceString}</ThemedText>
                     </Pressable>
@@ -132,7 +138,7 @@ export default function PaywallScreen() {
 
           <ThemedText type="small" themeColor="textSecondary" style={styles.legal}>
             Subscriptions renew automatically unless canceled at least 24h before the period ends.
-            Manage in your App Store account settings.
+            Manage in your {Platform.OS === 'ios' ? 'App Store' : 'Google Play'} account settings.
           </ThemedText>
         </ScrollView>
       </SafeAreaView>

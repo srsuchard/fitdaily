@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1689586252607966"
+     crossorigin="anonymous"></script>
+  <title>Privacy Policy — FitDaily</title>
+  <meta name="description" content="How FitDaily collects, uses, and protects your information." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://fitdaily.net/privacy-policy.html" />
+  <link rel="icon" href="assets/favicon.png" />
+  <style>
+    :root {
+      --accent: #FF5A3C;
+      --accent-2: #208AEF;
+      --accent-soft: #FFE9E3;
+      --text: #0B0D12;
+      --text-secondary: #5B616E;
+      --bg: #ffffff;
+      --bg-soft: #F7F8FA;
+      --bg-element: #F0F1F4;
+      --border: #E6E7EB;
+      --radius: 18px;
+      --shadow-sm: 0 6px 20px -8px rgba(11, 13, 18, 0.16);
+      --maxw: 760px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --text: #F4F5F7;
+        --text-secondary: #A2A8B4;
+        --bg: #0A0B0D;
+        --bg-soft: #131417;
+        --bg-element: #1B1D21;
+        --border: #26282D;
+        --accent-soft: #2A1812;
+        --shadow-sm: 0 6px 20px -8px rgba(0, 0, 0, 0.5);
+      }
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: var(--font);
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* Nav */
+    header {
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: saturate(180%) blur(14px);
+      -webkit-backdrop-filter: saturate(180%) blur(14px);
+      background: color-mix(in srgb, var(--bg) 78%, transparent);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav {
+      max-width: 1080px; margin: 0 auto;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 24px;
+    }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 18px; letter-spacing: -0.02em; color: var(--text); }
+    .brand:hover { text-decoration: none; }
+    .brand .mark {
+      width: 30px; height: 30px; border-radius: 9px;
+      background: linear-gradient(135deg, var(--accent), #FF8A5C);
+      display: grid; place-items: center; color: #fff; font-size: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .nav-back { color: var(--text-secondary); font-size: 15px; font-weight: 500; }
+    .nav-back:hover { color: var(--text); text-decoration: none; }
+
+    /* Document */
+    main { max-width: var(--maxw); margin: 0 auto; padding: 64px 24px 96px; }
+    .doc-head { margin-bottom: 40px; padding-bottom: 32px; border-bottom: 1px solid var(--border); }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--accent-soft); color: var(--accent);
+      font-weight: 600; font-size: 13px; padding: 7px 14px; border-radius: 999px;
+      margin-bottom: 18px;
+    }
+    h1 { font-size: clamp(32px, 5vw, 44px); line-height: 1.1; letter-spacing: -0.03em; font-weight: 800; }
+    .updated { color: var(--text-secondary); font-size: 15px; margin-top: 14px; }
+
+    .intro { font-size: 18px; color: var(--text-secondary); margin-bottom: 8px; }
+
+    h2 {
+      font-size: 22px; letter-spacing: -0.02em; font-weight: 800;
+      margin: 44px 0 14px; scroll-margin-top: 80px;
+    }
+    h3 { font-size: 17px; font-weight: 700; margin: 24px 0 8px; }
+    p { margin-bottom: 16px; color: var(--text); }
+    ul { margin: 0 0 16px; padding-left: 22px; }
+    li { margin-bottom: 8px; }
+    strong { font-weight: 700; }
+
+    .toc {
+      background: var(--bg-soft); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 22px 26px; margin-bottom: 40px;
+    }
+    .toc h2 { font-size: 14px; text-transform: uppercase; letter-spacing: .06em; color: var(--text-secondary); margin: 0 0 12px; }
+    .toc ol { margin: 0; padding-left: 20px; }
+    .toc li { margin-bottom: 6px; }
+    .toc a { color: var(--text); }
+
+    .callout {
+      background: var(--bg-soft); border: 1px solid var(--border);
+      border-left: 3px solid var(--accent); border-radius: 12px;
+      padding: 18px 22px; margin: 24px 0;
+    }
+    .callout p:last-child { margin-bottom: 0; }
+
+    table { width: 100%; border-collapse: collapse; margin: 8px 0 24px; font-size: 15px; }
+    th, td { text-align: left; padding: 12px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+    th { font-weight: 700; color: var(--text-secondary); font-size: 13px; text-transform: uppercase; letter-spacing: .04em; }
+
+    /* Footer */
+    footer { border-top: 1px solid var(--border); padding: 36px 24px; }
+    .foot { max-width: 1080px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .foot-links { display: flex; gap: 22px; color: var(--text-secondary); font-size: 14px; }
+    .foot-links a { color: var(--text-secondary); }
+    .foot-links a:hover { color: var(--text); }
+    .foot-copy { color: var(--text-secondary); font-size: 13px; width: 100%; text-align: center; margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <nav class="nav">
+      <a class="brand" href="/"><span class="mark">⚡</span> FitDaily</a>
+      <a class="nav-back" href="/">← Back to site</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="doc-head">
+      <span class="eyebrow">🔒 Privacy</span>
+      <h1>Privacy Policy</h1>
+      <p class="updated"><strong>Effective date:</strong> June 28, 2026 · <strong>Last updated:</strong> July 2, 2026</p>
+    </div>
+
+    <p class="intro">
+      FitDaily ("FitDaily", "we", "us", or "our") builds you one AI-personalized workout a day.
+      This Privacy Policy explains what information we collect through our website at
+      <a href="https://fitdaily.net/">fitdaily.net</a> and the FitDaily mobile app (together, the "Services"),
+      how we use it, and the choices you have. We've tried to keep it plain-spoken — if anything is unclear,
+      email us at <a href="mailto:support@fitdaily.net">support@fitdaily.net</a>.
+    </p>
+
+    <div class="callout">
+      <p><strong>The short version:</strong> We collect only what we need to send you your beta invite and to
+      generate your workouts. We don't sell your data, and we never use your fitness or account data to target
+      ads. Our website does show ads through Google AdSense, which may use cookies; our own analytics stay
+      cookie-less. You can ask us to delete your data at any time.</p>
+    </div>
+
+    <div class="toc">
+      <h2>Contents</h2>
+      <ol>
+        <li><a href="#info-we-collect">Information we collect</a></li>
+        <li><a href="#how-we-use">How we use your information</a></li>
+        <li><a href="#health-data">Health &amp; fitness data</a></li>
+        <li><a href="#ai">AI-generated workouts</a></li>
+        <li><a href="#analytics">Cookies &amp; analytics</a></li>
+        <li><a href="#sharing">When we share information</a></li>
+        <li><a href="#service-providers">Service providers</a></li>
+        <li><a href="#retention">Data retention</a></li>
+        <li><a href="#security">How we protect your data</a></li>
+        <li><a href="#rights">Your rights &amp; choices</a></li>
+        <li><a href="#children">Children's privacy</a></li>
+        <li><a href="#international">International users</a></li>
+        <li><a href="#changes">Changes to this policy</a></li>
+        <li><a href="#contact">Contact us</a></li>
+      </ol>
+    </div>
+
+    <h2 id="info-we-collect">1. Information we collect</h2>
+
+    <h3>Information you give us</h3>
+    <ul>
+      <li><strong>Beta waitlist email.</strong> When you join the beta on our website, we collect the email
+        address you submit so we can send you an invite and beta-related updates.</li>
+      <li><strong>App profile (mobile app).</strong> When you use the FitDaily app, you tell us your fitness
+        goal, how much time you have, and what equipment you have access to, so we can tailor your workouts.</li>
+      <li><strong>Workout activity (mobile app).</strong> Which workouts you start and complete, plus the
+        streaks and consistency history that builds up as you use the app.</li>
+      <li><strong>Messages you send us.</strong> If you email us for support or feedback, we keep that
+        correspondence.</li>
+    </ul>
+
+    <h3>Information collected automatically</h3>
+    <p>When you submit the beta form on our website, we also record a small amount of technical context to
+      prevent abuse and understand where signups come from:</p>
+    <ul>
+      <li><strong>Browser user agent</strong> (your browser/OS string).</li>
+      <li><strong>Referrer</strong> (the page that linked you to us, if any).</li>
+      <li><strong>Signup source</strong> (which form/landing page you used).</li>
+      <li><strong>Timestamp</strong> of your signup.</li>
+    </ul>
+    <p>We also store a local copy of the email you submitted in your own browser's
+      <code>localStorage</code> so that a network hiccup never loses your signup. This stays on your device.</p>
+
+    <h2 id="how-we-use">2. How we use your information</h2>
+    <p>We use the information above to:</p>
+    <ul>
+      <li>Send you your beta invitation and beta-related updates.</li>
+      <li>Create and operate your FitDaily account and generate your daily personalized workouts.</li>
+      <li>Track your streaks, history, and progress so you can see your consistency.</li>
+      <li>Respond to your support requests and feedback.</li>
+      <li>Understand how the Services are used, fix problems, and improve them.</li>
+      <li>Detect, prevent, and address fraud, abuse, or security issues.</li>
+      <li>Comply with legal obligations.</li>
+    </ul>
+    <p>We do <strong>not</strong> sell your personal information, and we never use your account, workout, or
+      health &amp; fitness data to target advertising. Our website does display third-party ads via Google
+      AdSense, which is described in <a href="#analytics">Cookies &amp; analytics</a> below.</p>
+
+    <h2 id="health-data">3. Health &amp; fitness data</h2>
+    <p>If you choose to connect Apple Health, the FitDaily app reads activity metrics such as your step count
+      and active energy. We use this only to fine-tune the intensity of each day's workout around how active
+      you've already been. This data is read on your device with your permission, and you can revoke access at
+      any time in your device's Health settings. We do not sell or share health and fitness data, and we do
+      not use it for advertising.</p>
+
+    <h2 id="ai">4. AI-generated workouts</h2>
+    <p>FitDaily generates your daily workouts using AI services provided by Anthropic (the makers of Claude).
+      To build a workout, we send the relevant inputs — such as your goal, available time, and equipment — to
+      Anthropic's API. We do not send your email address or directly identifying contact details for this
+      purpose. Anthropic processes this data to return a workout and, per its terms, does not use API inputs
+      to train its models.</p>
+
+    <h2 id="analytics">5. Cookies &amp; analytics</h2>
+    <p>Our website uses <strong>GoatCounter</strong>, a privacy-friendly analytics tool, to count page views
+      and understand general traffic patterns. GoatCounter does <strong>not</strong> use cookies and does not
+      collect personally identifying information.</p>
+    <p>Our website also displays ads through <strong>Google AdSense</strong>. Google and its advertising
+      partners may use cookies and similar technologies to serve ads — including personalized ads based on your
+      visits to this and other websites — and to measure ad performance. Through these technologies Google may
+      process data such as your IP address, device and browser information, and your interactions with ads. To
+      review or opt out of personalized advertising, visit
+      <a href="https://adssettings.google.com" rel="noopener" target="_blank">Google Ads Settings</a> and
+      Google's <a href="https://policies.google.com/technologies/ads" rel="noopener" target="_blank">advertising
+      notice</a>. Because AdSense can set advertising cookies, visitors in regions that require it (such as the
+      EEA and UK) may be shown a consent choice before non-essential cookies are used.</p>
+    <p>Aside from AdSense, the FitDaily website does not use other advertising or cross-site tracking cookies.
+      Our hosting and database providers may set strictly necessary technical cookies or process standard server
+      logs (such as IP addresses) to deliver and secure the site.</p>
+
+    <h2 id="sharing">6. When we share information</h2>
+    <p>We share personal information only in these limited situations:</p>
+    <ul>
+      <li><strong>With service providers</strong> who help us operate the Services (see the next section), under
+        agreements that limit how they may use it.</li>
+      <li><strong>For legal reasons</strong>, if required by law, regulation, legal process, or a valid
+        governmental request, or to protect the rights, property, or safety of FitDaily, our users, or the
+        public.</li>
+      <li><strong>In a business transfer</strong>, if FitDaily is involved in a merger, acquisition, or sale of
+        assets, in which case we'll notify you before your information becomes subject to a different policy.</li>
+    </ul>
+
+    <h2 id="service-providers">7. Service providers</h2>
+    <p>We rely on a small set of trusted providers to run FitDaily:</p>
+    <table>
+      <thead>
+        <tr><th>Provider</th><th>Purpose</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Supabase</td><td>Stores the beta waitlist and app data (database &amp; backend).</td></tr>
+        <tr><td>Netlify</td><td>Hosts the FitDaily website.</td></tr>
+        <tr><td>Anthropic (Claude)</td><td>Generates personalized workouts via AI.</td></tr>
+        <tr><td>GoatCounter</td><td>Cookie-less website analytics.</td></tr>
+        <tr><td>Google AdSense</td><td>Displays ads on the FitDaily website; may set advertising cookies.</td></tr>
+        <tr><td>Apple</td><td>App distribution (TestFlight / App Store) and, with your permission, Apple Health.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 id="retention">8. Data retention</h2>
+    <p>We keep your information for as long as it's needed for the purposes described in this policy. Beta
+      waitlist emails are kept until the beta concludes or you ask us to remove you. App account data is kept
+      while your account is active. When data is no longer needed, we delete or anonymize it. You can ask us to
+      delete your data sooner at any time (see your rights below).</p>
+
+    <h2 id="security">9. How we protect your data</h2>
+    <p>We use reasonable technical and organizational measures to protect your information. For example, our
+      waitlist database is configured so that the public website key can only add new signups — it cannot read,
+      change, or export the list. Data is transmitted over encrypted connections (HTTPS). No method of
+      transmission or storage is ever 100% secure, but we work to protect your information and to address any
+      issues promptly.</p>
+
+    <h2 id="rights">10. Your rights &amp; choices</h2>
+    <p>Depending on where you live, you may have rights to:</p>
+    <ul>
+      <li>Access the personal information we hold about you.</li>
+      <li>Correct inaccurate information.</li>
+      <li>Delete your information ("right to be forgotten").</li>
+      <li>Object to or restrict certain processing.</li>
+      <li>Receive a copy of your information in a portable format.</li>
+      <li>Withdraw consent where processing is based on consent.</li>
+    </ul>
+    <p><strong>Deleting your account and data.</strong> You can permanently delete your account and all
+      associated data at any time from within the app: open <strong>Profile &rarr; Delete account</strong>.
+      This immediately and irreversibly removes your account, workouts, streaks, and progress from our
+      servers. You can also request deletion by emailing
+      <a href="mailto:support@fitdaily.net">support@fitdaily.net</a>.</p>
+    <p>To exercise any of your other rights, email
+      <a href="mailto:support@fitdaily.net">support@fitdaily.net</a> and we'll respond within a
+      reasonable time. You can unsubscribe from beta emails at any time using the link in any email we send, or
+      by contacting us. We won't discriminate against you for exercising your rights.</p>
+
+    <h2 id="children">11. Children's privacy</h2>
+    <p>FitDaily is not directed to children under 13 (or the minimum age required in your country), and we do
+      not knowingly collect personal information from them. If you believe a child has provided us personal
+      information, contact us and we'll delete it.</p>
+
+    <h2 id="international">12. International users</h2>
+    <p>FitDaily is operated from the United States, and your information may be processed in the U.S. and other
+      countries where our service providers operate. These countries may have data-protection laws different
+      from those in your country. By using the Services, you understand your information may be transferred to
+      and processed in these locations.</p>
+
+    <h2 id="changes">13. Changes to this policy</h2>
+    <p>We may update this Privacy Policy from time to time. When we do, we'll revise the "Last updated" date
+      above and, for material changes, provide a more prominent notice. Your continued use of the Services
+      after an update means you accept the revised policy.</p>
+
+    <h2 id="contact">14. Contact us</h2>
+    <p>Questions, requests, or concerns about this Privacy Policy or your data? Reach us at:</p>
+    <p>
+      <strong>FitDaily</strong><br />
+      Email: <a href="mailto:support@fitdaily.net">support@fitdaily.net</a><br />
+      Website: <a href="https://fitdaily.net/">fitdaily.net</a>
+    </p>
+  </main>
+
+  <footer>
+    <div class="foot">
+      <a class="brand" href="/"><span class="mark">⚡</span> FitDaily</a>
+      <div class="foot-links">
+        <a href="/">Home</a>
+        <a href="/privacy-policy.html">Privacy</a>
+        <a href="mailto:support@fitdaily.net">Contact</a>
+      </div>
+      <div class="foot-copy">© <span id="year"></span> FitDaily · One personalized workout a day.</div>
+    </div>
+  </footer>
+
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

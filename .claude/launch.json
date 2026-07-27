@@ -17,6 +17,18 @@
         "8082"
       ],
       "port": 8082
+    },
+    {
+      "name": "marketing",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["-y", "http-server", "marketing", "-p", "8083", "-c-1"],
+      "port": 8083
+    },
+    {
+      "name": "metrics-dashboard",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["dashboard/server.mjs"],
+      "port": 4310
     }
   ]
 }

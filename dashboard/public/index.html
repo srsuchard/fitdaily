@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FitDaily · Live Metrics</title>
+    <style>
+      :root {
+        --bg: #0b0f17;
+        --panel: #131a26;
+        --panel-2: #182234;
+        --line: #223049;
+        --txt: #e7edf6;
+        --muted: #8ea0bd;
+        --accent: #4ade80;
+        --accent-2: #38bdf8;
+        --gold: #fbbf24;
+        --danger: #f87171;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        background: radial-gradient(1200px 600px at 20% -10%, #16233a 0%, var(--bg) 55%);
+        color: var(--txt);
+        min-height: 100vh;
+        -webkit-font-smoothing: antialiased;
+      }
+      .wrap { max-width: 1100px; margin: 0 auto; padding: 28px 20px 64px; }
+      header {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 16px; flex-wrap: wrap; margin-bottom: 22px;
+      }
+      h1 { font-size: 20px; margin: 0; letter-spacing: -0.02em; }
+      h1 span { color: var(--accent); }
+      .status { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; }
+      .dot {
+        width: 9px; height: 9px; border-radius: 50%; background: var(--accent);
+        box-shadow: 0 0 0 0 rgba(74,222,128,0.6); animation: pulse 2s infinite;
+      }
+      .dot.stale { background: var(--danger); animation: none; }
+      @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(74,222,128,0.5); }
+        70% { box-shadow: 0 0 0 8px rgba(74,222,128,0); }
+        100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); }
+      }
+      .section-title {
+        font-size: 12px; text-transform: uppercase; letter-spacing: 0.09em;
+        color: var(--muted); margin: 26px 2px 12px;
+      }
+      .grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
+      .card {
+        background: linear-gradient(180deg, var(--panel-2), var(--panel));
+        border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px;
+      }
+      .card .label { color: var(--muted); font-size: 12.5px; letter-spacing: 0.02em; }
+      .card .value { font-size: 30px; font-weight: 650; margin-top: 6px; letter-spacing: -0.02em; }
+      .card .sub { color: var(--muted); font-size: 12.5px; margin-top: 4px; }
+      .card .sub b { color: var(--accent); font-weight: 600; }
+      .accent .value { color: var(--accent); }
+      .blue .value { color: var(--accent-2); }
+      .gold .value { color: var(--gold); }
+
+      .panel {
+        background: linear-gradient(180deg, var(--panel-2), var(--panel));
+        border: 1px solid var(--line); border-radius: 14px; padding: 18px;
+      }
+      .chart { width: 100%; height: 180px; display: block; }
+      .bar { fill: var(--accent-2); transition: height .4s ease, y .4s ease; }
+      .bar:hover { fill: var(--accent); }
+      .axis { fill: var(--muted); font-size: 10px; }
+      .g-line { fill: none; stroke: var(--accent); stroke-width: 2; }
+      .g-area { fill: url(#gGrad); }
+      .g-dot { fill: var(--accent); }
+
+      .sources { list-style: none; margin: 0; padding: 0; }
+      .sources li { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px dashed var(--line); }
+      .sources li:last-child { border-bottom: 0; }
+      .sources .src { color: var(--txt); }
+      .sources .n { color: var(--muted); font-variant-numeric: tabular-nums; }
+
+      .two { display: grid; gap: 14px; grid-template-columns: 1.6fr 1fr; }
+      @media (max-width: 760px) { .two { grid-template-columns: 1fr; } }
+
+      .err { color: var(--danger); font-size: 12px; margin-top: 8px; }
+      .muted { color: var(--muted); }
+      .rc-off { color: var(--muted); font-size: 13px; }
+      footer { margin-top: 30px; color: var(--muted); font-size: 12px; text-align: center; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <h1>Fit<span>Daily</span> · Live Metrics</h1>
+        <div class="status">
+          <span class="dot" id="dot"></span>
+          <span id="updated">connecting…</span>
+        </div>
+      </header>
+
+      <div class="section-title">Beta waitlist</div>
+      <div class="grid" id="beta-cards"></div>
+
+      <div class="two" style="margin-top:14px">
+        <div class="panel">
+          <div class="section-title" style="margin:0 0 10px">Signups · last 30 days</div>
+          <svg class="chart" id="chart" viewBox="0 0 720 180" preserveAspectRatio="none"></svg>
+        </div>
+        <div class="panel">
+          <div class="section-title" style="margin:0 0 6px">Top sources</div>
+          <ul class="sources" id="sources"></ul>
+        </div>
+      </div>
+
+      <div class="section-title">Users &amp; subscriptions</div>
+      <div class="grid" id="user-cards"></div>
+
+      <div class="panel" style="margin-top:14px">
+        <div class="section-title" style="margin:0 0 10px">Total users · last 30 days</div>
+        <svg class="chart" id="growth" viewBox="0 0 720 180" preserveAspectRatio="none"></svg>
+      </div>
+
+      <div class="section-title">Engagement</div>
+      <div class="grid" id="eng-cards"></div>
+
+      <div class="section-title">RevenueCat (live)</div>
+      <div id="rc-wrap"><div class="grid" id="rc-cards"></div></div>
+
+      <footer>Auto-refreshes every 15s · service_role stays on the server · numbers only in the browser</footer>
+    </div>
+
+    <script>
+      const REFRESH_MS = 15000;
+      const fmt = (n) => (n == null ? '—' : Number(n).toLocaleString());
+      const el = (id) => document.getElementById(id);
+
+      function card({ label, value, sub, cls = '' }) {
+        return `<div class="card ${cls}">
+          <div class="label">${label}</div>
+          <div class="value">${value}</div>
+          ${sub ? `<div class="sub">${sub}</div>` : ''}
+        </div>`;
+      }
+
+      function renderChart(series) {
+        const svg = el('chart');
+        if (!series || !series.length) { svg.innerHTML = ''; return; }
+        const W = 720, H = 180, pad = 22;
+        const max = Math.max(1, ...series.map((d) => d.n));
+        const bw = (W - pad * 2) / series.length;
+        let out = '';
+        // baseline
+        out += `<line x1="${pad}" y1="${H - pad}" x2="${W - pad}" y2="${H - pad}" stroke="#223049"/>`;
+        series.forEach((d, i) => {
+          const h = Math.round(((H - pad * 2) * d.n) / max);
+          const x = pad + i * bw + 1;
+          const y = H - pad - h;
+          out += `<rect class="bar" x="${x}" y="${y}" width="${Math.max(1, bw - 2)}" height="${h}" rx="2">
+            <title>${d.date}: ${d.n}</title></rect>`;
+        });
+        // sparse date labels (first, mid, last)
+        [0, Math.floor(series.length / 2), series.length - 1].forEach((i) => {
+          const x = pad + i * bw + bw / 2;
+          out += `<text class="axis" x="${x}" y="${H - 6}" text-anchor="middle">${series[i].date.slice(5)}</text>`;
+        });
+        out += `<text class="axis" x="${pad}" y="14">max ${max}/day</text>`;
+        svg.innerHTML = out;
+      }
+
+      function renderGrowth(growth) {
+        const svg = el('growth');
+        if (!growth || !growth.length) { svg.innerHTML = ''; return; }
+        const W = 720, H = 180, padX = 22, padTop = 20, padBot = 22;
+        const vals = growth.map((d) => d.total);
+        const max = Math.max(1, ...vals);
+        const min = Math.min(...vals);
+        const span = Math.max(1, max - min);
+        const x = (i) => padX + (i * (W - padX * 2)) / (growth.length - 1 || 1);
+        const y = (v) => padTop + (H - padTop - padBot) * (1 - (v - min) / span);
+        const pts = growth.map((d, i) => `${x(i).toFixed(1)},${y(d.total).toFixed(1)}`);
+        const line = 'M' + pts.join(' L');
+        const area =
+          `M${x(0).toFixed(1)},${(H - padBot).toFixed(1)} L` +
+          pts.join(' L') +
+          ` L${x(growth.length - 1).toFixed(1)},${(H - padBot).toFixed(1)} Z`;
+        const last = growth[growth.length - 1];
+        svg.innerHTML =
+          `<defs><linearGradient id="gGrad" x1="0" y1="0" x2="0" y2="1">
+             <stop offset="0%" stop-color="#4ade80" stop-opacity="0.30"/>
+             <stop offset="100%" stop-color="#4ade80" stop-opacity="0"/>
+           </linearGradient></defs>` +
+          `<path class="g-area" d="${area}"/>` +
+          `<path class="g-line" d="${line}"><title>Total users over time</title></path>` +
+          `<circle class="g-dot" cx="${x(growth.length - 1).toFixed(1)}" cy="${y(last.total).toFixed(1)}" r="3.5"/>` +
+          `<text class="axis" x="${padX}" y="14">${min.toLocaleString()}</text>` +
+          `<text class="axis" x="${(W - padX).toFixed(1)}" y="14" text-anchor="end">${last.total.toLocaleString()} total</text>` +
+          [0, Math.floor(growth.length / 2), growth.length - 1]
+            .map((i) => `<text class="axis" x="${x(i).toFixed(1)}" y="${H - 6}" text-anchor="middle">${growth[i].date.slice(5)}</text>`)
+            .join('');
+      }
+
+      function renderSources(list) {
+        el('sources').innerHTML =
+          (list && list.length)
+            ? list.map((s) => `<li><span class="src">${s.source}</span><span class="n">${fmt(s.n)}</span></li>`).join('')
+            : '<li class="muted">No signups yet</li>';
+      }
+
+      // RevenueCat returns unit as a currency symbol ("$"/"€"), "%", or "".
+      function rcValue(m) {
+        const u = (m.unit || '').trim();
+        const v = fmt(m.value);
+        if (!u || u === '#') return v; // "#" = a count -> plain number
+        if (u === '%') return v + '%';
+        if (/^[A-Za-z]/.test(u)) return v + ' ' + u; // word-like unit -> suffix
+        return u + v; // currency symbol -> prefix
+      }
+      // period is an ISO-8601 duration: "P0D" = current, "P28D" = last 28 days.
+      function rcPeriod(p) {
+        if (!p || p === 'P0D') return 'current';
+        const d = /^P(\d+)D$/.exec(p);
+        return d ? `last ${d[1]} days` : p;
+      }
+
+      function renderRevenueCat(rc) {
+        const wrap = el('rc-wrap');
+        if (!rc || rc.configured === false) {
+          wrap.innerHTML =
+            '<div class="panel rc-off">Live RevenueCat API not configured. ' +
+            'Premium counts above come from the <b>profiles.entitlement</b> column your webhook keeps in sync. ' +
+            'Add <code>REVENUECAT_SECRET_KEY</code> + <code>REVENUECAT_PROJECT_ID</code> to dashboard/.env for revenue $ figures.</div>';
+          return;
+        }
+        if (rc.__error) { wrap.innerHTML = `<div class="panel err">RevenueCat error: ${rc.__error}</div>`; return; }
+        const metrics = rc.metrics || [];
+        wrap.innerHTML =
+          '<div class="grid" id="rc-cards">' +
+          (metrics.length
+            ? metrics
+                .map((m) =>
+                  card({
+                    label: m.name,
+                    value: rcValue(m),
+                    sub: rcPeriod(m.period),
+                    cls: 'gold',
+                  })
+                )
+                .join('')
+            : '<div class="card muted">No metrics returned</div>') +
+          '</div>';
+      }
+
+      function setStale(msg) {
+        el('dot').classList.add('stale');
+        el('updated').textContent = msg;
+      }
+
+      async function tick() {
+        try {
+          const r = await fetch('/api/metrics', { cache: 'no-store' });
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          const d = await r.json();
+
+          const b = d.beta || {}, u = d.users || {}, e = d.engagement || {};
+
+          el('beta-cards').innerHTML = [
+            card({ label: 'Total signups', value: fmt(b.total), sub: `<b>+${fmt(b.today)}</b> today`, cls: 'accent' }),
+            card({ label: 'Last 7 days', value: fmt(b.last7) }),
+            card({ label: 'Last 30 days', value: fmt(b.last30) }),
+          ].join('') + (b.__error ? `<div class="err">${b.__error}</div>` : '');
+
+          renderChart(b.series);
+          renderSources(b.topSources);
+
+          el('user-cards').innerHTML = [
+            card({ label: 'Total users', value: fmt(u.total), sub: `<b>+${fmt(u.newToday)}</b> today · ${fmt(u.new7)} this week`, cls: 'blue' }),
+            card({ label: 'Premium (active)', value: fmt(u.premium), sub: `${fmt(u.free)} free`, cls: 'gold' }),
+            card({ label: 'Expiring ≤ 7d', value: fmt(u.expiringSoon), cls: u.expiringSoon ? 'gold' : '' }),
+          ].join('') + (u.__error ? `<div class="err">${u.__error}</div>` : '');
+
+          renderGrowth(u.growth);
+
+          el('eng-cards').innerHTML = [
+            card({ label: 'Active users · 7d', value: fmt(e.activeUsers7), sub: 'completed a workout', cls: 'accent' }),
+            card({ label: 'Completions today', value: fmt(e.completionsToday), sub: `${fmt(e.completions7)} this week` }),
+            card({ label: 'Workouts generated', value: fmt(e.workoutsTotal), sub: `<b>${fmt(e.aiWorkouts)}</b> AI-generated` }),
+            card({ label: 'Total completions', value: fmt(e.completionsTotal) }),
+          ].join('') + (e.__error ? `<div class="err">${e.__error}</div>` : '');
+
+          renderRevenueCat(d.revenuecat);
+
+          el('dot').classList.remove('stale');
+          el('updated').textContent = 'Updated ' + new Date(d.generatedAt).toLocaleTimeString();
+        } catch (err) {
+          setStale('Disconnected — retrying… (' + err.message + ')');
+        }
+      }
+
+      tick();
+      setInterval(tick, REFRESH_MS);
+    </script>
+  </body>
+</html>
