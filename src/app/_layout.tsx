@@ -7,6 +7,10 @@ import { AuthProvider, useAuth } from '@/providers/AuthProvider';
 import { ProgressProvider } from '@/providers/ProgressProvider';
 import { WorkoutSessionProvider } from '@/providers/WorkoutSessionProvider';
 
+// Expo Router renders this app-wide when a screen throws while rendering, so a
+// single broken screen degrades gracefully instead of crashing the whole app.
+export { ErrorBoundary } from '@/components/error-boundary';
+
 export const unstable_settings = {
   initialRouteName: '(tabs)',
 };
